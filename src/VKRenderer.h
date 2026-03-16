@@ -33,7 +33,8 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 const int SAMPLERS_BINDINGS_COUNT = 4;
 const int TEXTURES_BINDINGS_COUNT = 4;
 const int SAMPLERS_COUNT = 4;
-const int TEXTURES_COUNT = 4;
+const int TEXTURES_COUNT = 100;
+const int DYNAMIC_CONST_BUFFER_BLOCK_COUNT = 100;
 const int PER_FRAME_SET_COUNT = 3;
 
 class VKRenderer : public Renderer

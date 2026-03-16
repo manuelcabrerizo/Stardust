@@ -1574,6 +1574,7 @@ void VKRenderer::CreateDescriptorSet()
 
 void VKRenderer::CreatePerFrameConstBuffers()
 {
+	// TODO: implement this using reflection
 	struct VkPerFrameConstBuffer
 	{
 		Matrix4x4 View;
@@ -1581,7 +1582,6 @@ void VKRenderer::CreatePerFrameConstBuffers()
 		float Time;
 	};
 
-	// TODO: implement this using reflection
     VkDeviceSize bufferSize = sizeof(VkPerFrameConstBuffer);
 
     mPerFrameConstBufferSize = bufferSize;
@@ -1615,6 +1615,7 @@ void VKRenderer::CreatePerFrameConstBuffers()
 
 void VKRenderer::CreatePerDrawConstBuffer()
 {
+	// TODO: implement this using reflection
 	struct VkPerDrawConstBuffer
 	{
 		Matrix4x4 World;
@@ -1629,7 +1630,7 @@ void VKRenderer::CreatePerDrawConstBuffer()
     {
 		mDynamicAlignment = (mDynamicAlignment + minUboAlignment - 1) & ~(minUboAlignment - 1);
 	}
-	size_t bufferSize = 100 * mDynamicAlignment;
+	size_t bufferSize = DYNAMIC_CONST_BUFFER_BLOCK_COUNT * mDynamicAlignment;
 
 	CreateBuffer(bufferSize,
 		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
