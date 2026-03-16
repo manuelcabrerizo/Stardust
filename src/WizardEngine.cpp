@@ -23,7 +23,6 @@ WizardEngine::WizardEngine(const Config& config)
 
 void WizardEngine::OnInit()
 {
-
 	GetEventBus()->AddListener(EventType::WindowResizeEvent, this);
 
 #if SD_D3D11

@@ -75,6 +75,7 @@ private:
 	void CreateLogicalDevice();
 	void CreateSwapChain();
 	void CreateImageView();
+	void CreateDepthResource();
 	void CreateRenderPass();
 	void CreateFramebuffers();
 	void CreateCommandPool();
@@ -101,6 +102,9 @@ private:
 	void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	VkCommandBuffer BeginSingleTimeCommands();
 	void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+	VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+	VkFormat FindDepthFormat();
+	bool HasStencilComponent(VkFormat format);
 
 	VkInstance mInstance;
 	VkPhysicalDevice mPhysicalDevice;
@@ -109,10 +113,17 @@ private:
 	VkQueue mPresentQueue;
 	VkSurfaceKHR mSurface;
 	VkSwapchainKHR mSwapChain;
+	
 	std::vector<VkImage> mSwapChainImages;
 	std::vector<VkImageView> mSwapChainImageViews;
+
+	VkImage mDepthImage;
+	VkDeviceMemory mDepthImageMemory;
+	VkImageView mDepthImageView;
+
 	VkFormat mSwapChainImageFormat;
 	VkExtent2D mSwapChainExtent;
+
 	VkRenderPass mRenderPass;
 	std::vector<VkFramebuffer> mSwapChainFramebuffers;
 	VkCommandPool mCommandPool;

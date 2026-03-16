@@ -10,7 +10,6 @@ StardustEngine::StardustEngine(const Config& config)
 {
 	ServiceProvider::Instance()->AddService<EventBus>(new EventBus());
 
-
 	mPlatform = Platform::Create(config);
 	mRenderer = Renderer::Create(config, mPlatform);
 }
