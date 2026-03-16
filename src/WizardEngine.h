@@ -3,6 +3,8 @@
 
 #include "StardustEngine.h"
 
+#include "EventBus.h"
+
 #include "GraphicPipeline.h"
 #include "VertexBuffer.h"
 #include "Texture2D.h"
@@ -10,7 +12,7 @@
 #include "math/Matrix4x4.h"
 #include "math/Vector3.h"
 
-class WizardEngine : public StardustEngine
+class WizardEngine : public StardustEngine, EventListener
 {
 public:
 	WizardEngine(const Config& config);
@@ -19,6 +21,9 @@ private:
 	void OnLateInit() override;
 	void OnTick() override;
 	void OnDestroy() override;
+
+	void OnEvent(const Event& event) override;
+	void OnWindowResizeEvent(const WindowResizeEvent& windowResizeEvent);
 
 	GraphicPipeline* mGraphicPipeline;
 	VertexBuffer* mVertexBuffer;

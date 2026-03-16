@@ -11,8 +11,8 @@ int CALLBACK WinMain(HINSTANCE hInstance,
 	{
 		Config config;
 		config.Title = "Wizard Game";
-		config.ScreenWidth = 800;
-		config.ScreenHeight = 600;
+		config.ScreenWidth = 1280;
+		config.ScreenHeight = 720;
 		config.Fullscreen = false;
 
 		WizardEngine engine(config);

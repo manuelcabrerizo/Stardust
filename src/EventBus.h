@@ -48,4 +48,6 @@ private:
 	std::unordered_map<EventType, std::vector<EventListener*>> mListenersRegistry;
 };
 
+#define GetEventBus() ServiceProvider::Instance()->GetService<EventBus>()
+
 #endif

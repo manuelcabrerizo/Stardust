@@ -12,6 +12,7 @@ public:
 	static Platform* Create(const Config& config);
 
 	virtual bool ShouldClose() = 0;
+	virtual bool IsPaused() = 0;
 	virtual bool ProcessEvents() = 0;
 	virtual void *GetWindowHandle() = 0;
 

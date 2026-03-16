@@ -31,9 +31,11 @@ void StardustEngine::Run()
 	{
 		if(!mPlatform->ProcessEvents())
 		{
-			OnTick();
+			if(!mPlatform->IsPaused())
+			{
+				OnTick();
+			}
 		}
-
 	}
 	OnDestroy();
 }

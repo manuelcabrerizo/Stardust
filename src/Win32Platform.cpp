@@ -12,8 +12,6 @@ LRESULT Wndproc(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 
 Win32Platform::Win32Platform(const Config& config)
 {
-    mEventBus = ServiceProvider::Instance()->GetService<EventBus>();
-
 	mInstance = GetModuleHandle(0);
 
 	WNDCLASS wndClass = {};
@@ -47,6 +45,7 @@ Win32Platform::Win32Platform(const Config& config)
     ShowWindow(mWindow, SW_SHOW);
 
     gIsRunning = true;
+    mIsPaused = false;
 }
 
 Win32Platform::~Win32Platform()
@@ -57,6 +56,11 @@ Win32Platform::~Win32Platform()
 bool Win32Platform::ShouldClose()
 {
 	return !gIsRunning;
+}
+
+bool Win32Platform::IsPaused()
+{
+    return mIsPaused;   
 }
 
 bool Win32Platform::ProcessEvents()
@@ -78,20 +82,43 @@ void *Win32Platform::GetWindowHandle()
 
 LRESULT Win32Platform::MsgProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    if(message == WM_CLOSE)
+    LRESULT result = {};
+    switch(message)
     {
-        gIsRunning = false;
-    }
+        case WM_CLOSE:
+        {
+            gIsRunning = false;
+        } break;
+        case WM_SIZE:
+        {
+            if(wParam == SIZE_MINIMIZED)
+            {
+                mIsPaused = true;
+            }
+            if(wParam == SIZE_RESTORED)
+            {
+                mIsPaused = false;
+            }
+            if(!IsPaused())
+            {
+                WindowResizeEvent event;
+                event.Width = LOWORD(lParam);
+                event.Height = HIWORD(lParam);
+                GetEventBus()->RiseEvent(EventType::WindowResizeEvent, event);
+            }
+        } break;
+        case WM_GETMINMAXINFO:
+        {
+            ((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
+            ((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;  
+        } break;
+        default:
+        {
+            result = DefWindowProc(window, message, wParam, lParam);
 
-    if(message == WM_SIZE)
-    {
-        WindowResizeEvent event;
-        event.Width = LOWORD(lParam);
-        event.Height = HIWORD(lParam);
-        mEventBus->RiseEvent(EventType::WindowResizeEvent, event);
+        } break;
     }
-
-    return DefWindowProc(window, message, wParam, lParam);
+    return result;
 }
 
 const char* Win32Platform::GetVulkanPlatformExtension()

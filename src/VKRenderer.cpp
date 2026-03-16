@@ -53,8 +53,7 @@ static QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice& device, cons
 
 VKRenderer::VKRenderer(const Config& config, Platform* platform)
 {
-	mEventBus = ServiceProvider::Instance()->GetService<EventBus>();
-	mEventBus->AddListener(EventType::WindowResizeEvent, this);
+	GetEventBus()->AddListener(EventType::WindowResizeEvent, this);
 
 	CreateInstance(config, platform);
 	SetUpDebugMessenger();
@@ -75,6 +74,7 @@ VKRenderer::VKRenderer(const Config& config, Platform* platform)
 	CreateDescriptorSetLayout();
 	CreateDescriptorSet();
 
+	mFramebufferResized = false;
 	mImageIndex = 0;
 	mCurrentFrame = 0;
 }
@@ -118,17 +118,11 @@ VKRenderer::~VKRenderer()
 	}
 
 	vkDestroyCommandPool(mDevice, mCommandPool, nullptr);
-    for (auto framebuffer : mSwapChainFramebuffers)
-    {
-        vkDestroyFramebuffer(mDevice, framebuffer, nullptr);
-    }
+
+	CleanupSwapChain();
 
 	vkDestroyRenderPass(mDevice, mRenderPass, nullptr);
-    for (auto imageView : mSwapChainImageViews)
-    {
-        vkDestroyImageView(mDevice, imageView, nullptr);
-    }
-	vkDestroySwapchainKHR(mDevice, mSwapChain, nullptr);
+
 	vkDestroyDevice(mDevice, nullptr);
 	if(ENABLE_VALIDATION_LAYERS)
 	{
@@ -137,7 +131,30 @@ VKRenderer::~VKRenderer()
 	vkDestroySurfaceKHR(mInstance, mSurface, nullptr);
 	vkDestroyInstance(mInstance, nullptr);
 
-	mEventBus->RemoveListener(EventType::WindowResizeEvent, this);
+	GetEventBus()->RemoveListener(EventType::WindowResizeEvent, this);
+}
+
+void VKRenderer::CleanupSwapChain()
+{
+    for (auto framebuffer : mSwapChainFramebuffers)
+    {
+        vkDestroyFramebuffer(mDevice, framebuffer, nullptr);
+    }
+    for (auto imageView : mSwapChainImageViews)
+    {
+        vkDestroyImageView(mDevice, imageView, nullptr);
+    }
+	vkDestroySwapchainKHR(mDevice, mSwapChain, nullptr);
+}
+
+void VKRenderer::RecreateSwapChain()
+{
+	vkDeviceWaitIdle(mDevice);
+	CleanupSwapChain();
+
+	CreateSwapChain();
+	CreateImageView();
+	CreateFramebuffers();
 }
 
 void VKRenderer::OnEvent(const Event& event)
@@ -157,7 +174,7 @@ void VKRenderer::OnEvent(const Event& event)
 
 void VKRenderer::OnWindowResizeEvent(const WindowResizeEvent& windowResizeEvent)
 {
-
+	mFramebufferResized = true;
 }
 
 void VKRenderer::BeginFrame()
@@ -165,10 +182,19 @@ void VKRenderer::BeginFrame()
 	mPerDrawConstBufferUsed = 0;
 
 	vkWaitForFences(mDevice, 1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
+
+    VkResult result = vkAcquireNextImageKHR(mDevice, mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame], VK_NULL_HANDLE, &mImageIndex);
+    if(result == VK_ERROR_OUT_OF_DATE_KHR)
+    {
+    	RecreateSwapChain();
+    	return;
+    }
+    else if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    {
+		// TODO: Handle Error ...
+    }
+
     vkResetFences(mDevice, 1, &mInFlightFences[mCurrentFrame]);
-
-    vkAcquireNextImageKHR(mDevice, mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame], VK_NULL_HANDLE, &mImageIndex);
-
     vkResetCommandBuffer(mCommandBuffers[mCurrentFrame], 0);
 
 	VkCommandBufferBeginInfo beginInfo{};
@@ -242,14 +268,23 @@ void VKRenderer::EndFrame()
 
 	VkPresentInfoKHR presentInfo{};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = signalSemaphores;
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &mImageIndex;
 	presentInfo.pResults = nullptr; // Optional
-	vkQueuePresentKHR(mPresentQueue, &presentInfo);
+
+	VkResult result =  vkQueuePresentKHR(mPresentQueue, &presentInfo);
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || mFramebufferResized)
+	{
+		mFramebufferResized = false;
+	    RecreateSwapChain();
+	}
+	else if (result != VK_SUCCESS)
+	{
+ 		// TODO: Handle Error ...
+	}
 
 	mCurrentFrame = (mCurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }

@@ -65,6 +65,9 @@ protected:
 	void PushIndexBuffer(IndexBuffer* indexBuffer) override;
 	void PushTexture(Texture2D* texture2d, int slot) override;
 private:
+	void CleanupSwapChain();
+	void RecreateSwapChain();
+
 	void CreateInstance(const Config& config, Platform* platform);
 	void SetUpDebugMessenger();
 	void CreateSurface(Platform* platform);
@@ -99,8 +102,6 @@ private:
 	VkCommandBuffer BeginSingleTimeCommands();
 	void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
 
-	EventBus* mEventBus;
-
 	VkInstance mInstance;
 	VkPhysicalDevice mPhysicalDevice;
 	VkDevice mDevice;
@@ -121,6 +122,7 @@ private:
 	std::vector<VkSemaphore> mRenderFinishedSemaphores;
 	std::vector<VkFence> mInFlightFences; 
 
+	bool mFramebufferResized;
 	unsigned int mImageIndex;
 	unsigned int mCurrentFrame;
 

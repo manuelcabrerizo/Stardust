@@ -24,6 +24,8 @@ WizardEngine::WizardEngine(const Config& config)
 void WizardEngine::OnInit()
 {
 
+	GetEventBus()->AddListener(EventType::WindowResizeEvent, this);
+
 #if SD_D3D11
 	mGraphicPipeline = new GraphicPipeline("assets/shaders/vert.dxbc", "assets/shaders/frag.dxbc");
 #elif SD_VULKAN
@@ -34,7 +36,7 @@ void WizardEngine::OnInit()
 	mTexture0 = new Texture2D("assets/textures/tiles_floor_5.png", false);
 	mTexture1 = new Texture2D("assets/textures/tiles_floor_5_normal.png", false);
 	mView = Matrix4x4::LookAt(Vector3(0.0f, 0.0f, -2.0f), Vector3::ZeroVector, Vector3::YAxisVector);
-	mProj = Matrix4x4::Perspective(60.0f*(SD_PI/180.0f), 800.0f / 600.0f, 0.05f, 200.0f);
+	mProj = Matrix4x4::Perspective(60.0f*(SD_PI/180.0f), 1280.0f / 720.0f, 0.05f, 200.0f);
 }
 
 void WizardEngine::OnLateInit()
@@ -91,4 +93,27 @@ void WizardEngine::OnDestroy()
 	delete mTexture0;
 	delete mVertexBuffer;
 	delete mGraphicPipeline;
+
+	GetEventBus()->RemoveListener(EventType::WindowResizeEvent, this);
+}
+
+void WizardEngine::OnEvent(const Event& event)
+{
+	switch(event.Type)
+	{
+		case EventType::WindowResizeEvent:
+		{
+			OnWindowResizeEvent(reinterpret_cast<const WindowResizeEvent&>(event));
+		}break;
+		default:
+		{
+			assert(!"ERROR!");
+		}
+	};
+}
+
+void WizardEngine::OnWindowResizeEvent(const WindowResizeEvent& windowResizeEvent)
+{
+	float aspect = (float)windowResizeEvent.Width / (float)windowResizeEvent.Height;
+	mProj = Matrix4x4::Perspective(60.0f*(SD_PI/180.0f), aspect, 0.05f, 200.0f);
 }

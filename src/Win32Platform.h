@@ -15,6 +15,7 @@ public:
 	~Win32Platform();
 
 	bool ShouldClose() override;
+	bool IsPaused() override;
 	bool ProcessEvents() override;
 	void *GetWindowHandle() override;
 	LRESULT MsgProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
@@ -22,10 +23,9 @@ public:
 	const char* GetVulkanPlatformExtension() override;
 	bool CreateVulkanPlatformSurface(const VkInstance& instance, VkSurfaceKHR& surface) override;
 private:
-	EventBus* mEventBus;
-
 	HINSTANCE mInstance;
 	HWND mWindow;
+	bool mIsPaused;
 };
 
 #endif
