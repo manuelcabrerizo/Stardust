@@ -21,7 +21,6 @@
 #include "math/Matrix4x4.h"
 #include "math/Vector3.h"
 
-
 class VKGraphicPipelineID : public ResourceIdentifier
 {
 public:
@@ -85,11 +84,16 @@ VKRenderer::~VKRenderer()
     }
 
 	vkDestroyPipelineLayout(mDevice, mLayout, nullptr);
+	vkDestroyDescriptorSetLayout(mDevice, mDescriptorSetLayout3, nullptr);
 	vkDestroyDescriptorSetLayout(mDevice, mDescriptorSetLayout2, nullptr);
 	vkDestroyDescriptorSetLayout(mDevice, mDescriptorSetLayout1, nullptr);
 	vkDestroyDescriptorSetLayout(mDevice, mDescriptorSetLayout0, nullptr);
 
+	vkDestroyDescriptorPool(mDevice, mPerDrawDescriptorPool, nullptr);
 	vkDestroyDescriptorPool(mDevice, mPerFrameDescriptorPool, nullptr);
+
+	vkDestroyBuffer(mDevice, mPerDrawConstBuffers, nullptr);
+	vkFreeMemory(mDevice, mPerDrawConstBufferMemory, nullptr);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
@@ -477,6 +481,9 @@ void VKRenderer::OnLoadTexture2D(ResourceIdentifier*& id, Texture2D* texture2d)
 			static_cast<unsigned int>(texture2d->GetHeight()));
 		TransitionImageLayout(resource->Image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		
+		vkDestroyBuffer(mDevice, stagingBuffer, nullptr);
+		vkFreeMemory(mDevice, stagingBufferMemory, nullptr);
+
 		// Create Image View
 		VkImageViewCreateInfo viewInfo{};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -524,7 +531,12 @@ void VKRenderer::OnLoadTexture2D(ResourceIdentifier*& id, Texture2D* texture2d)
 
 void VKRenderer::OnReleaseTexture2D(ResourceIdentifier* id)
 {
-
+	VKTexture2DID* resource = reinterpret_cast<VKTexture2DID*>(id);
+	vkDeviceWaitIdle(mDevice);
+	vkDestroyImageView(mDevice, resource->View, nullptr);
+	vkDestroyImage(mDevice, resource->Image, nullptr);
+	vkFreeMemory(mDevice, resource->Memory, nullptr);
+	delete resource;
 }
 
 void VKRenderer::PushGraphicPipeline(GraphicPipeline* graphicPipeline)
