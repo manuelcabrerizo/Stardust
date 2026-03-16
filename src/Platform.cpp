@@ -4,13 +4,8 @@
 
 Platform* Platform::Create(const Config& config)
 {
-	switch(config.Platform)
-	{
-	case Platforms::Windows: return new Win32Platform(config);
-	case Platforms::MacOS:   return nullptr;
-	case Platforms::Linux:   return nullptr;
-	case Platforms::Android: return nullptr;
-	case Platforms::Ios:     return nullptr;
-	}
+#if SD_WIN32
+	return new Win32Platform(config);
+#endif
 	return nullptr;
 }

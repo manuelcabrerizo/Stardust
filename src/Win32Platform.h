@@ -4,6 +4,8 @@
 #include "Platform.h"
 #include <windows.h>
 
+#include "EventBus.h"
+
 struct Config;
 
 class Win32Platform : public Platform
@@ -15,9 +17,13 @@ public:
 	bool ShouldClose() override;
 	bool ProcessEvents() override;
 	void *GetWindowHandle() override;
+	LRESULT MsgProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
+
 	const char* GetVulkanPlatformExtension() override;
 	bool CreateVulkanPlatformSurface(const VkInstance& instance, VkSurfaceKHR& surface) override;
 private:
+	EventBus* mEventBus;
+
 	HINSTANCE mInstance;
 	HWND mWindow;
 };

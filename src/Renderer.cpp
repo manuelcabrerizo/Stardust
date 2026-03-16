@@ -13,14 +13,11 @@
 
 Renderer* Renderer::Create(const Config& config, Platform* platform)
 {
-	switch(config.Platform)
-	{
-	case Platforms::Windows: return new VKRenderer(config, platform);
-	case Platforms::MacOS:   return nullptr;
-	case Platforms::Linux:   return nullptr;
-	case Platforms::Android: return nullptr;
-	case Platforms::Ios:     return nullptr;
-	}
+#if SD_D3D11
+	return new D3D11Renderer(config, platform);
+#elif SD_VULKAN
+	return new VKRenderer(config, platform);
+#endif
 	return nullptr;
 }
 

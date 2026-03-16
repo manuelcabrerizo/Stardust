@@ -23,8 +23,13 @@ WizardEngine::WizardEngine(const Config& config)
 
 void WizardEngine::OnInit()
 {
-	//mGraphicPipeline = new GraphicPipeline("assets/shaders/vert.dxbc", "assets/shaders/frag.dxbc");
+
+#if SD_D3D11
+	mGraphicPipeline = new GraphicPipeline("assets/shaders/vert.dxbc", "assets/shaders/frag.dxbc");
+#elif SD_VULKAN
 	mGraphicPipeline = new GraphicPipeline("assets/shaders/vert.spv", "assets/shaders/frag.spv");
+#endif
+
 	mVertexBuffer = new VertexBuffer(vertices, 6, sizeof(VertexQuad));
 	mTexture0 = new Texture2D("assets/textures/tiles_floor_5.png", false);
 	mTexture1 = new Texture2D("assets/textures/tiles_floor_5_normal.png", false);

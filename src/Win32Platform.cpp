@@ -1,6 +1,8 @@
 #include "Win32Platform.h"
 #include "Config.h"
 
+#include "ServiceProvider.h"
+
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_win32.h>
 
@@ -10,6 +12,8 @@ LRESULT Wndproc(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 
 Win32Platform::Win32Platform(const Config& config)
 {
+    mEventBus = ServiceProvider::Instance()->GetService<EventBus>();
+
 	mInstance = GetModuleHandle(0);
 
 	WNDCLASS wndClass = {};
@@ -33,7 +37,7 @@ Win32Platform::Win32Platform(const Config& config)
     						config.Title, WS_OVERLAPPEDWINDOW,
     						CW_USEDEFAULT, CW_USEDEFAULT,
     						config.ScreenWidth, config.ScreenHeight,
-    						0, 0, mInstance, 0);
+    						0, 0, mInstance, this);
     if(!mWindow)
     {
     	return;
@@ -72,6 +76,24 @@ void *Win32Platform::GetWindowHandle()
     return (void *)mWindow;
 }
 
+LRESULT Win32Platform::MsgProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    if(message == WM_CLOSE)
+    {
+        gIsRunning = false;
+    }
+
+    if(message == WM_SIZE)
+    {
+        WindowResizeEvent event;
+        event.Width = LOWORD(lParam);
+        event.Height = HIWORD(lParam);
+        mEventBus->RiseEvent(EventType::WindowResizeEvent, event);
+    }
+
+    return DefWindowProc(window, message, wParam, lParam);
+}
+
 const char* Win32Platform::GetVulkanPlatformExtension()
 {
     return "VK_KHR_win32_surface";
@@ -92,9 +114,13 @@ bool Win32Platform::CreateVulkanPlatformSurface(const VkInstance& instance, VkSu
 
 LRESULT Wndproc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	if(message == WM_CLOSE)
-	{
-		gIsRunning = false;
-	}
-	return DefWindowProc(window, message, wParam, lParam);
+    if (message == WM_CREATE)
+    {
+        // Extraemos el puntero 'this' pasado en CreateWindowA
+        CREATESTRUCT* create = reinterpret_cast<CREATESTRUCT*>(lParam);
+        SetWindowLongPtr(window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(create->lpCreateParams));
+    }
+
+    Win32Platform *platform = reinterpret_cast<Win32Platform *>(GetWindowLongPtr(window, GWLP_USERDATA));
+    return platform->MsgProc(window, message, wParam, lParam);
 }

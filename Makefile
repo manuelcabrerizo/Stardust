@@ -12,6 +12,11 @@ LIBS    = -luser32 -ld3d11 -ld3dcompiler -ldxguid -lvulkan-1
 SHADER  = assets/shaders
 DXC = C:\VulkanSDK\1.4.341.1\Bin\dxc.exe
 
+DEFINES = -DSD_DEBUG=1 \
+		  -DSD_WIN32=1 \
+		  -DSD_D3D11=0 \
+		  -DSD_VULKAN=1
+
 SRCS  = $(SRC)/main.cpp \
 		$(SRC)/WizardEngine.cpp \
 		$(SRC)/StardustEngine.cpp \
@@ -29,13 +34,15 @@ SRCS  = $(SRC)/main.cpp \
 		$(SRC)/math/Vector2.cpp \
 		$(SRC)/math/Vector3.cpp \
 		$(SRC)/math/Vector4.cpp \
-		$(SRC)/math/Matrix4x4.cpp
+		$(SRC)/math/Matrix4x4.cpp \
+		$(SRC)/EventBus.cpp \
+		$(SRC)/ServiceProvider.cpp
 
 SHADERS = $(SHADER)/Vertex.hlsl \
 		  $(SHADER)/Pixel.hlsl
 
 $(APP) : $(SRCS)
-	$(CC) $(SRCS) -o $(APP).exe $(CCFLAGS) $(INCL_PATH) $(LIBS_PATH) $(LIBS)
+	$(CC) $(SRCS) -o $(APP).exe $(CCFLAGS) $(DEFINES) $(INCL_PATH) $(LIBS_PATH) $(LIBS)
 
 sh : $(SHADERS)
 	fxc -O3 -T vs_5_0 -E main -Fo $(SHADER)/vert.dxbc $(SHADER)/Vertex.hlsl

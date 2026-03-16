@@ -2,6 +2,8 @@
 #include "Platform.h"
 #include "Config.h"
 
+#include "ServiceProvider.h"
+
 #include "Bindable.h"
 #include "GraphicPipeline.h"
 #include "VertexBuffer.h"
@@ -51,6 +53,9 @@ static QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice& device, cons
 
 VKRenderer::VKRenderer(const Config& config, Platform* platform)
 {
+	mEventBus = ServiceProvider::Instance()->GetService<EventBus>();
+	mEventBus->AddListener(EventType::WindowResizeEvent, this);
+
 	CreateInstance(config, platform);
 	SetUpDebugMessenger();
 	CreateSurface(platform);
@@ -131,6 +136,28 @@ VKRenderer::~VKRenderer()
 	}
 	vkDestroySurfaceKHR(mInstance, mSurface, nullptr);
 	vkDestroyInstance(mInstance, nullptr);
+
+	mEventBus->RemoveListener(EventType::WindowResizeEvent, this);
+}
+
+void VKRenderer::OnEvent(const Event& event)
+{
+	switch(event.Type)
+	{
+		case EventType::WindowResizeEvent:
+		{
+			OnWindowResizeEvent(reinterpret_cast<const WindowResizeEvent&>(event));
+		}break;
+		default:
+		{
+			assert(!"ERROR!");
+		}
+	};
+}
+
+void VKRenderer::OnWindowResizeEvent(const WindowResizeEvent& windowResizeEvent)
+{
+
 }
 
 void VKRenderer::BeginFrame()
@@ -301,7 +328,7 @@ void VKRenderer::OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline*
 	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizer.lineWidth = 1.0f;
 	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT ;
-	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE; // VK_FRONT_FACE_COUNTER_CLOCKWISE
 	rasterizer.depthBiasEnable = VK_FALSE;
 	rasterizer.depthBiasConstantFactor = 0.0f; // Optional
 	rasterizer.depthBiasClamp = 0.0f; // Optional

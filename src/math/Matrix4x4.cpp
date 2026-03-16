@@ -93,12 +93,21 @@ Vector3 Matrix4x4::TransformVector(const Matrix4x4& mat, const Vector3& vec)
 Matrix4x4 Matrix4x4::Frustum(float l, float r, float b, float t, float n, float f)
 {
     assert(!(l == r || t == b || n == f));
+    #if SD_D3D11
     Matrix4x4 mat = {{
     	{(2*n) /(r-l),           0, -(r+l)/(r-l),            0},
         {           0, (2*n)/(t-b), -(t+b)/(t-b),            0},
         {           0,           0,      f/(f-n), -(f*n)/(f-n)},
         {           0,           0,            1,            0}
     }};
+    #elif SD_VULKAN
+    Matrix4x4 mat = {{
+    	{(2*n) /(r-l),            0, -(r+l)/(r-l),            0},
+        {           0, -(2*n)/(t-b), -(t+b)/(t-b),            0},
+        {           0,            0,      f/(f-n), -(f*n)/(f-n)},
+        {           0,            0,            1,            0}
+    }};
+    #endif
     return Matrix4x4::Transposed(mat);
 }
 
@@ -112,12 +121,21 @@ Matrix4x4 Matrix4x4::Perspective(float fov, float aspect, float znear, float zfa
 Matrix4x4 Matrix4x4::Ortho(float l, float r, float b, float t, float n, float f)
 {
     assert(!(l == r || t == b || n == f));
+    #if SD_D3D11
     Matrix4x4 mat = {{
     	{2.0f / (r - l),              0,              0, -((r + l) / (r - l))},
         {             0, 2.0f / (t - b),              0,   -(t + b) / (t - b)},
         {             0,              0, 1.0f / (f - n),       -(n / (f - n))},
         {             0,              0,              0,                    1}
     }};
+	#elif SD_VULKAN
+    Matrix4x4 mat = {{
+    	{2.0f / (r - l),               0,              0, -((r + l) / (r - l))},
+        {             0, -2.0f / (t - b),              0,   -(t + b) / (t - b)},
+        {             0,               0, 1.0f / (f - n),       -(n / (f - n))},
+        {             0,               0,              0,                    1}
+    }};
+	#endif
     return Matrix4x4::Transposed(mat);
 }
 

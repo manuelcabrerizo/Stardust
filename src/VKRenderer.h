@@ -2,6 +2,7 @@
 #define VK_RENDERER_H
 
 #include "Renderer.h"
+#include "EventBus.h"
 
 #include <vulkan/vulkan.h>
 #include <optional>
@@ -37,11 +38,15 @@ const int TEXTURES_COUNT = 100;
 const int DYNAMIC_CONST_BUFFER_BLOCK_COUNT = 100;
 const int PER_FRAME_SET_COUNT = 3;
 
-class VKRenderer : public Renderer
+class VKRenderer : public Renderer, EventListener
 {
 public:
 	VKRenderer(const Config& config, Platform* platform);
 	~VKRenderer();
+
+	void OnEvent(const Event& event) override;
+	void OnWindowResizeEvent(const WindowResizeEvent& windowResizeEvent);
+
 	void BeginFrame() override;
 	void EndFrame() override;
 protected:
@@ -93,6 +98,8 @@ private:
 	void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	VkCommandBuffer BeginSingleTimeCommands();
 	void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+	EventBus* mEventBus;
 
 	VkInstance mInstance;
 	VkPhysicalDevice mPhysicalDevice;

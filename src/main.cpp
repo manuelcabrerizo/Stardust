@@ -10,7 +10,6 @@ int CALLBACK WinMain(HINSTANCE hInstance,
 	try
 	{
 		Config config;
-		config.Platform = Platforms::Windows;
 		config.Title = "Wizard Game";
 		config.ScreenWidth = 800;
 		config.ScreenHeight = 600;

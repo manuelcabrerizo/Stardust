@@ -15,7 +15,7 @@ class Texture2D;
 #include <string>
 #include <cassert>
 
-class Renderer
+class Renderer 
 {
 public:
 	virtual ~Renderer() {}
