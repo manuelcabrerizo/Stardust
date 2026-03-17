@@ -36,7 +36,8 @@ SRCS  = $(SRC)/main.cpp \
 		$(SRC)/math/Vector4.cpp \
 		$(SRC)/math/Matrix4x4.cpp \
 		$(SRC)/EventBus.cpp \
-		$(SRC)/ServiceProvider.cpp
+		$(SRC)/ServiceProvider.cpp \
+		$(SRC)/spirv_reflect.cpp
 
 SHADERS = $(SHADER)/Vertex.hlsl \
 		  $(SHADER)/Pixel.hlsl

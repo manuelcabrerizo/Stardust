@@ -24,7 +24,7 @@ enum ConstBufferBindStage
 class ConstBuffer
 {
 public:
-	ConstBuffer(const std::string& name, unsigned int slot, size_t size);
+	ConstBuffer(const std::string& name, unsigned int slot, unsigned int binding, size_t size);
 	ConstBuffer(const ConstBuffer& constBuffer);
 	~ConstBuffer();
 
@@ -32,6 +32,7 @@ public:
 	bool operator!=(const ConstBuffer& rhs) const;
 
 	unsigned int GetSlot() const;
+	unsigned int GetBinding() const;
 	const unsigned char* GetData() const;
 	int GetSize() const;
 	int GetUsedSize() const;
@@ -54,6 +55,7 @@ public:
 private:
 	std::string mName;
 	unsigned int mSlot;
+	unsigned int mBinding;
 	unsigned char *mBuffer;
 	size_t mSize;
 	size_t mUsedSize;

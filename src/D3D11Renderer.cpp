@@ -14,6 +14,9 @@
 #include <vector>
 #include <cassert>
 
+// Important Resource for CONST BUFFERS
+// Source: https://developer.nvidia.com/content/constant-buffers-without-constant-pain-0#
+
 struct D3D11Format
 {
 	DXGI_FORMAT Format;
@@ -276,11 +279,11 @@ void D3D11Renderer::OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeli
 
 		if(mPerFrame->GetBindStage() & CB_VERTEX_BIND_STAGE)
 		{
-			mDeviceContext->VSSetConstantBuffers(mPerFrame->GetSlot(), 1, &mPerFrameConstBuffer);
+			mDeviceContext->VSSetConstantBuffers(mPerFrame->GetBinding(), 1, &mPerFrameConstBuffer);
 		}
 		if(mPerFrame->GetBindStage() & CB_PIXEL_BIND_STAGE)
 		{
-			mDeviceContext->VSSetConstantBuffers(mPerFrame->GetSlot(), 1, &mPerFrameConstBuffer);
+			mDeviceContext->VSSetConstantBuffers(mPerFrame->GetBinding(), 1, &mPerFrameConstBuffer);
 		}
 	}
 }
@@ -424,7 +427,7 @@ void  D3D11Renderer::PushPerDrawVariables()
 	unsigned int alignSize = (mPerDraw->GetSize() + 255) & ~255;
 
 	ConstBufferInfo info;
-	info.Slot = mPerDraw->GetSlot();
+	info.Slot = mPerDraw->GetBinding();
 	info.BindStage = mPerDraw->GetBindStage();
 	info.Offset = mGlobalConstBufferUsed;
 	info.Size = alignSize;
@@ -704,7 +707,7 @@ void D3D11Renderer::LoadPerFrameConstBuffer(ID3D11ShaderReflection* reflection, 
 			continue;
 		}
 		
-		ConstBuffer constantBuffer = ConstBuffer(bufferDesc.Name, bindDesc.BindPoint, bufferDesc.Size);
+		ConstBuffer constantBuffer = ConstBuffer(bufferDesc.Name, 0, bindDesc.BindPoint, bufferDesc.Size);
 		for(int j = 0; j < bufferDesc.Variables; j++)
 		{
 			ID3D11ShaderReflectionVariable* variable = constBuffer->GetVariableByIndex(j);
@@ -738,7 +741,7 @@ void D3D11Renderer::LoadPerDrawConstBuffer(ID3D11ShaderReflection* reflection, c
 			continue;
 		}
 		
-		ConstBuffer constantBuffer = ConstBuffer(bufferDesc.Name, bindDesc.BindPoint, bufferDesc.Size);
+		ConstBuffer constantBuffer = ConstBuffer(bufferDesc.Name, 0, bindDesc.BindPoint, bufferDesc.Size);
 		for(int j = 0; j < bufferDesc.Variables; j++)
 		{
 			ID3D11ShaderReflectionVariable* variable = constBuffer->GetVariableByIndex(j);

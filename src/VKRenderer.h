@@ -84,9 +84,10 @@ private:
 	void CreateDescriptorPool();
 	void CreateDescriptorSetLayout();
 	void CreateDescriptorSet();
-	void CreatePerFrameConstBuffers();
-	void CreatePerDrawConstBuffer();
 	void CreateSamplers();
+
+	void LoadPerFrameConstBuffer(GraphicPipeline* graphicPipeline);
+	void LoadPerDrawConstBuffer(GraphicPipeline* graphicPipeline);
 
 	bool IsDeviceSiutable(VkPhysicalDevice device);
 	bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
@@ -154,7 +155,6 @@ private:
 
 	VkBuffer mPerDrawConstBuffers;
 	VkDeviceMemory mPerDrawConstBufferMemory;
-	size_t mDynamicAlignment;
 	unsigned int mPerDrawConstBufferUsed;
 
 	std::array<VkSampler, SAMPLERS_COUNT> mSamplers;

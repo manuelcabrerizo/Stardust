@@ -11,6 +11,8 @@
 #include "ConstBuffer.h"
 #include "Texture2D.h"
 
+#include "spirv_reflect.h"
+
 // TODO: remove #include <windows.h>
 #define NOMINMAX
 #include <windows.h>
@@ -68,12 +70,8 @@ VKRenderer::VKRenderer(const Config& config, Platform* platform)
 	CreateCommandPool();
 	CreateCommandBuffer();
 	CreateSyncObjects();
-	CreatePerFrameConstBuffers();
-	CreatePerDrawConstBuffer();
 	CreateSamplers();
 	CreateDescriptorPool();
-	CreateDescriptorSetLayout();
-	CreateDescriptorSet();
 
 	mFramebufferResized = false;
 	mImageIndex = 0;
@@ -219,7 +217,7 @@ void VKRenderer::BeginFrame()
 	renderPassInfo.renderArea.extent = mSwapChainExtent;
 
 	std::array<VkClearValue, 2> clearValues{};
-	clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+	clearValues[0].color = {{0.02f, 0.02f, 0.2f, 1.0f}};
 	clearValues[1].depthStencil = {1.0f, 0};
 	renderPassInfo.clearValueCount = static_cast<unsigned int>(clearValues.size());
 	renderPassInfo.pClearValues = clearValues.data();
@@ -303,6 +301,20 @@ void VKRenderer::OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline*
 
 	VkShaderModule vertShaderModule = CreateShaderModule(graphicPipeline->GetVertexShaderData(), graphicPipeline->GetVertexShaderSize());
 	VkShaderModule pixelShaderModule = CreateShaderModule(graphicPipeline->GetPixelShaderData(), graphicPipeline->GetPixelShaderSize());
+	if(mPerFrame == nullptr)
+	{
+		LoadPerFrameConstBuffer(graphicPipeline);
+	}
+	if(mPerDraw == nullptr)
+	{
+		LoadPerDrawConstBuffer(graphicPipeline);
+	}
+	if(mPerFrame && mPerDraw && mPerFrameDescriptorSets.size() == 0)
+	{
+		CreateDescriptorSetLayout();
+		CreateDescriptorSet();
+	}
+
 
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -1729,7 +1741,7 @@ void VKRenderer::CreateDescriptorSet()
     	VkDescriptorBufferInfo dynamicBufferInfo{};
 	    dynamicBufferInfo.buffer = mPerDrawConstBuffers;
 	    dynamicBufferInfo.offset = 0;
-	    dynamicBufferInfo.range =  mDynamicAlignment;
+	    dynamicBufferInfo.range =  mPerDraw->GetSize();
 
 	    VkWriteDescriptorSet set1Writes{};
 		set1Writes.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -1758,83 +1770,89 @@ void VKRenderer::CreateDescriptorSet()
     }
 }
 
-
-void VKRenderer::CreatePerFrameConstBuffers()
+static std::vector<ConstBuffer> CreateConstBufferPerSet(VkPhysicalDevice device, GraphicPipeline* graphicPipeline, int set, bool dynamic)
 {
-	// TODO: implement this using reflection
-	struct VkPerFrameConstBuffer
+	SpvReflectShaderModule vertexModule;
+	SpvReflectResult reflectResult = spvReflectCreateShaderModule(graphicPipeline->GetVertexShaderSize(), graphicPipeline->GetVertexShaderData(), &vertexModule);
+	assert(reflectResult == SPV_REFLECT_RESULT_SUCCESS);
+
+	unsigned int count = 0;
+	reflectResult = spvReflectEnumerateDescriptorSets(&vertexModule, &count, nullptr);
+	assert(reflectResult == SPV_REFLECT_RESULT_SUCCESS);
+	std::vector<SpvReflectDescriptorSet*> sets(count);
+	reflectResult = spvReflectEnumerateDescriptorSets(&vertexModule, &count, sets.data());
+	assert(reflectResult == SPV_REFLECT_RESULT_SUCCESS);
+
+	assert(set >= 0 && set < sets.size());
+	SpvReflectDescriptorSet* descriptorSet = sets[set];
+
+	std::vector<ConstBuffer> constBuffers;
+	for(int i = 0; i < descriptorSet->binding_count; i++)
 	{
-		Matrix4x4 View;
-		Matrix4x4 Proj;
-		float Time;
-	};
+		SpvReflectDescriptorBinding* binding = descriptorSet->bindings[i];
+		if(binding->descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER ||
+		   binding->descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC)
+		{
+		    size_t alignSize = binding->block.padded_size;
+			if(dynamic)
+			{
+				VkPhysicalDeviceProperties properties;
+				vkGetPhysicalDeviceProperties(device, &properties);
+				size_t minUboAlignment = properties.limits.minUniformBufferOffsetAlignment;
+			    if (minUboAlignment > 0)
+			    {
+					alignSize = (alignSize + minUboAlignment - 1) & ~(minUboAlignment - 1);
+				}
+			}
+			ConstBuffer constantBuffer = ConstBuffer(binding->name, set, binding->binding, alignSize);
+			constantBuffer.AddBindStage(CB_VERTEX_BIND_STAGE);
+			constantBuffer.AddBindStage(CB_PIXEL_BIND_STAGE);
+			for(int j = 0; j < binding->block.member_count; j++)
+			{
+				const SpvReflectBlockVariable& variableDesc = binding->block.members[j];
+				Variable constantBufferVariable;
+				constantBufferVariable.Offset = variableDesc.absolute_offset; // use offset or absolute_offset?
+				constantBufferVariable.Size = variableDesc.size;
+				constantBuffer.AddVariable(variableDesc.name, constantBufferVariable);
+			}
+			constBuffers.push_back(constantBuffer);
+		}
+	}
+	spvReflectDestroyShaderModule(&vertexModule);
 
-    VkDeviceSize bufferSize = sizeof(VkPerFrameConstBuffer);
+	return constBuffers;
+}
 
-    mPerFrameConstBufferSize = bufferSize;
+
+void VKRenderer::LoadPerFrameConstBuffer(GraphicPipeline* graphicPipeline)
+{
+	std::vector<ConstBuffer> set0ConstBuffers = CreateConstBufferPerSet(mPhysicalDevice, graphicPipeline, 0, false);
+	assert(set0ConstBuffers.size() > 0);
+	mPerFrame = new ConstBuffer(set0ConstBuffers[0]);
+    mPerFrameConstBufferSize = mPerFrame->GetSize();
 	mPerFrameConstBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 	mPerFrameConstBufferMemory.resize(MAX_FRAMES_IN_FLIGHT);
 	mPerFrameConstBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
-
 	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		CreateBuffer(bufferSize,
+		CreateBuffer(mPerFrame->GetSize(),
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 			mPerFrameConstBuffers[i], mPerFrameConstBufferMemory[i]);
-	  	vkMapMemory(mDevice, mPerFrameConstBufferMemory[i], 0, bufferSize, 0, &mPerFrameConstBuffersMapped[i]);
+	  	vkMapMemory(mDevice, mPerFrameConstBufferMemory[i], 0, mPerFrame->GetSize(), 0, &mPerFrameConstBuffersMapped[i]);
 	}
-
-	mPerFrame = new ConstBuffer("PerFrame", 0, bufferSize);
-	mPerFrame->AddBindStage(CB_VERTEX_BIND_STAGE);
-	mPerFrame->AddBindStage(CB_PIXEL_BIND_STAGE);
-	Variable variable;
-	variable.Offset = offsetof(VkPerFrameConstBuffer, View);
-	variable.Size = sizeof(Matrix4x4); 
-	mPerFrame->AddVariable("View", variable);
-	variable.Offset = offsetof(VkPerFrameConstBuffer, Proj);
-	variable.Size = sizeof(Matrix4x4); 
-	mPerFrame->AddVariable("Proj", variable);
-	variable.Offset = offsetof(VkPerFrameConstBuffer, Time);
-	variable.Size = sizeof(float); 
-	mPerFrame->AddVariable("Time", variable);
 }
 
-void VKRenderer::CreatePerDrawConstBuffer()
+void VKRenderer::LoadPerDrawConstBuffer(GraphicPipeline* graphicPipeline)
 {
-	// TODO: implement this using reflection
-	struct VkPerDrawConstBuffer
-	{
-		Matrix4x4 World;
-		Vector3 Tint;
-	};
-
-	VkPhysicalDeviceProperties properties;
-	vkGetPhysicalDeviceProperties(mPhysicalDevice, &properties);
-	size_t minUboAlignment = properties.limits.minUniformBufferOffsetAlignment;
-    mDynamicAlignment = sizeof(VkPerDrawConstBuffer);
-    if (minUboAlignment > 0)
-    {
-		mDynamicAlignment = (mDynamicAlignment + minUboAlignment - 1) & ~(minUboAlignment - 1);
-	}
-	size_t bufferSize = DYNAMIC_CONST_BUFFER_BLOCK_COUNT * mDynamicAlignment;
-
+	std::vector<ConstBuffer> set1ConstBuffers = CreateConstBufferPerSet(mPhysicalDevice, graphicPipeline, 1, true);
+	assert(set1ConstBuffers.size() > 0);
+	mPerDraw = new ConstBuffer(set1ConstBuffers[0]);
+	size_t bufferSize = DYNAMIC_CONST_BUFFER_BLOCK_COUNT * mPerDraw->GetSize();
 	CreateBuffer(bufferSize,
 		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
 		mPerDrawConstBuffers, mPerDrawConstBufferMemory);
-
 	mPerDrawConstBufferUsed = 0;
-
-	mPerDraw = new ConstBuffer("mPerDraw", 0, mDynamicAlignment);
-	mPerDraw->AddBindStage(CB_VERTEX_BIND_STAGE);
-	mPerDraw->AddBindStage(CB_PIXEL_BIND_STAGE);
-	Variable variable;
-	variable.Offset = offsetof(VkPerDrawConstBuffer, World);
-	variable.Size = sizeof(Matrix4x4); 
-	mPerDraw->AddVariable("World", variable);
-	variable.Offset = offsetof(VkPerDrawConstBuffer, Tint);
-	variable.Size = sizeof(Vector3); 
-	mPerDraw->AddVariable("Tint", variable);
 }
 
 void VKRenderer::CreateSamplers()
