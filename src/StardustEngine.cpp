@@ -26,14 +26,23 @@ void StardustEngine::Run()
 {
 	OnInit();
 	OnLateInit();
+
+	double lastTime = mPlatform->GetTime();
+
 	while(!mPlatform->ShouldClose())
 	{
-		if(!mPlatform->ProcessEvents())
+		double currentTime = mPlatform->GetTime();
+		float deltaTime = static_cast<float>(currentTime - lastTime);
+		lastTime = currentTime;
+		if(deltaTime > 0.033f)
 		{
-			if(!mPlatform->IsPaused())
-			{
-				OnTick();
-			}
+			deltaTime = 0.033f;
+		}
+
+		mPlatform->ProcessEvents();
+		if(!mPlatform->IsPaused())
+		{
+			OnTick(deltaTime);
 		}
 	}
 	OnDestroy();

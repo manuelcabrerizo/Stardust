@@ -167,9 +167,9 @@ void D3D11Renderer::OnWindowResizeEvent(const WindowResizeEvent& windowResizeEve
 	mDeviceContext->RSSetViewports( 1, &vp );
 }
 
-void D3D11Renderer::BeginFrame()
+void D3D11Renderer::BeginFrame(float r, float g, float b)
 {
-	float clearColor[] = { 0.2f, 0.2f, 0.6f, 1.0f };
+	float clearColor[] = { r, g, b, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	BeginRenderingSession();

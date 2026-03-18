@@ -13,8 +13,9 @@ public:
 
 	virtual bool ShouldClose() = 0;
 	virtual bool IsPaused() = 0;
-	virtual bool ProcessEvents() = 0;
+	virtual void ProcessEvents() = 0;
 	virtual void *GetWindowHandle() = 0;
+	virtual double GetTime() = 0;
 
 	virtual const char* GetVulkanPlatformExtension() = 0;
 	virtual bool CreateVulkanPlatformSurface(const VkInstance& instance, VkSurfaceKHR& surface) = 0;

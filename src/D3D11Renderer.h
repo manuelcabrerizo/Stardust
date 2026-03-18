@@ -62,7 +62,7 @@ public:
 	void OnEvent(const Event& event) override;
 	void OnWindowResizeEvent(const WindowResizeEvent& windowResizeEvent);
 
-	void BeginFrame() override;
+	void BeginFrame(float r, float g, float b) override;
 	void EndFrame() override;
 protected:
 	void OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline* graphicPipeline) override;

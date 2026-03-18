@@ -21,7 +21,7 @@ public:
 	virtual ~Renderer() {}
 	static Renderer* Create(const Config& config, Platform* platform);
 
-	virtual void BeginFrame() = 0;
+	virtual void BeginFrame(float r, float g, float b) = 0;
 	virtual void EndFrame() = 0;
 
 	// Function pointer types for binding and unbinding resources

@@ -52,16 +52,16 @@ void WizardEngine::OnLateInit()
 	mModel->Load(mRenderer);
 }
 
-void WizardEngine::OnTick()
+void WizardEngine::OnTick(float deltaTime)
 {
 	static float angle = 0;
-	angle += 0.0001f;
+	angle += deltaTime;
 	if(angle > (SD_PI * 2.0f))
 	{
 		angle -= SD_PI * 2.0f;
 	}
 
-	mRenderer->BeginFrame();
+	mRenderer->BeginFrame(0.2f, 0.2f, 0.4f);
 
 	mRenderer->PushGraphicPipeline(mGraphicPipeline);
 	

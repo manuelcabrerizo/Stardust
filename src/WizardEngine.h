@@ -21,7 +21,7 @@ public:
 private:
 	void OnInit() override;
 	void OnLateInit() override;
-	void OnTick() override;
+	void OnTick(float deltaTime) override;
 	void OnDestroy() override;
 
 	void OnEvent(const Event& event) override;

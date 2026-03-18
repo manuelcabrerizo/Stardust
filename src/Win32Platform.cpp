@@ -46,6 +46,8 @@ Win32Platform::Win32Platform(const Config& config)
 
     gIsRunning = true;
     mIsPaused = false;
+
+    QueryPerformanceFrequency(&mFrequency);
 }
 
 Win32Platform::~Win32Platform()
@@ -63,21 +65,27 @@ bool Win32Platform::IsPaused()
     return mIsPaused;   
 }
 
-bool Win32Platform::ProcessEvents()
+void Win32Platform::ProcessEvents()
 {
 	MSG message;
-	if(PeekMessageA(&message, mWindow, 0, 0, PM_REMOVE))
+	while(PeekMessageA(&message, mWindow, 0, 0, PM_REMOVE))
 	{
         TranslateMessage(&message);
     	DispatchMessageA(&message);
-    	return true;
 	}
-	return false;
 }
 
 void *Win32Platform::GetWindowHandle()
 {
     return (void *)mWindow;
+}
+
+double Win32Platform::GetTime()
+{
+    LARGE_INTEGER currentCounter;
+    QueryPerformanceCounter(&currentCounter);
+    double currentTime = (double)currentCounter.QuadPart / mFrequency.QuadPart;
+    return currentTime;
 }
 
 LRESULT Win32Platform::MsgProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)

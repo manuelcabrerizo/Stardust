@@ -16,8 +16,10 @@ public:
 
 	bool ShouldClose() override;
 	bool IsPaused() override;
-	bool ProcessEvents() override;
+	void ProcessEvents() override;
 	void *GetWindowHandle() override;
+	double GetTime() override;
+
 	LRESULT MsgProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 
 	const char* GetVulkanPlatformExtension() override;
@@ -26,6 +28,7 @@ private:
 	HINSTANCE mInstance;
 	HWND mWindow;
 	bool mIsPaused;
+	LARGE_INTEGER mFrequency;
 };
 
 #endif

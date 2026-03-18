@@ -18,7 +18,7 @@ public:
 private:
 	virtual void OnInit() = 0;
 	virtual void OnLateInit() = 0;
-	virtual void OnTick() = 0;
+	virtual void OnTick(float deltaTime) = 0;
 	virtual void OnDestroy() = 0;
 protected:
 	Platform* mPlatform;
