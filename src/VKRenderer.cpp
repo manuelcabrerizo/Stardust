@@ -52,6 +52,8 @@ static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugU
 static void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 static void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 static QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
+static std::vector<ConstBuffer> CreateConstBufferPerSet(VkPhysicalDevice device, GraphicPipeline* graphicPipeline, int set, bool dynamic);
+
 
 VKRenderer::VKRenderer(const Config& config, Platform* platform)
 {
@@ -72,6 +74,7 @@ VKRenderer::VKRenderer(const Config& config, Platform* platform)
 	CreateSyncObjects();
 	CreateSamplers();
 	CreateDescriptorPool();
+	CreateDescriptorSetLayout();
 
 	mFramebufferResized = false;
 	mImageIndex = 0;
@@ -129,6 +132,9 @@ VKRenderer::~VKRenderer()
 	}
 	vkDestroySurfaceKHR(mInstance, mSurface, nullptr);
 	vkDestroyInstance(mInstance, nullptr);
+
+	if(mPerFrame) delete mPerFrame;
+	if(mPerDraw) delete mPerDraw;
 
 	GetEventBus()->RemoveListener(EventType::WindowResizeEvent, this);
 }
@@ -311,10 +317,12 @@ void VKRenderer::OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline*
 	}
 	if(mPerFrame && mPerDraw && mPerFrameDescriptorSets.size() == 0)
 	{
-		CreateDescriptorSetLayout();
-		CreateDescriptorSet();
+		CreateDescriptorSet(graphicPipeline);
 	}
-
+	else
+	{
+		assert(!"ERROR!!");
+	}
 
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -330,19 +338,36 @@ void VKRenderer::OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline*
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, pixelShaderStageInfo};
 
+	// Use relfection to detect the Input Attribute Descriptor y Input Binding Descriptor
+	/////////////////////////////////////////////////////////////////////////////////////////
+	SpvReflectShaderModule vertexModule;
+	SpvReflectResult reflectResult = spvReflectCreateShaderModule(graphicPipeline->GetVertexShaderSize(), graphicPipeline->GetVertexShaderData(), &vertexModule);
+	assert(reflectResult == SPV_REFLECT_RESULT_SUCCESS);
+
+	unsigned int count = 0;
+	spvReflectEnumerateInputVariables(&vertexModule, &count, nullptr);
+	std::vector<SpvReflectInterfaceVariable*> inputVariables(count);
+	spvReflectEnumerateInputVariables(&vertexModule, &count, inputVariables.data());
+
+	int stride = 0;
+	std::vector<VkVertexInputAttributeDescription> attributeDescriptions(inputVariables.size());
+	for(int i = 0; i < inputVariables.size(); i++)
+	{
+		SpvReflectInterfaceVariable* variable = inputVariables[i];
+		attributeDescriptions[i].binding = 0;
+		attributeDescriptions[i].location = variable->location;
+		attributeDescriptions[i].format = static_cast<VkFormat>(variable->format);
+		attributeDescriptions[i].offset = stride;
+		stride += (variable->numeric.scalar.width / 8) * variable->numeric.vector.component_count;
+	}
+
 	VkVertexInputBindingDescription bindingDescription{};
 	bindingDescription.binding = 0;
-	bindingDescription.stride = 5 * sizeof(float);
+	bindingDescription.stride = stride;
 	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
-	attributeDescriptions[0].binding = 0;
-	attributeDescriptions[0].location = 0;
-	attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-	attributeDescriptions[0].offset = 0;
-	attributeDescriptions[1].binding = 0;
-	attributeDescriptions[1].location = 1;
-	attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-	attributeDescriptions[1].offset = 3 * sizeof(float);
+
+	spvReflectDestroyShaderModule(&vertexModule);
+	/////////////////////////////////////////////////////////////////////////////////////////
 
 	// Vertex Input (this info should came from the shader reflection, Hard coded for now)
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -1538,6 +1563,49 @@ void VKRenderer::TransitionImageLayout(VkImage image, VkFormat format, VkImageLa
 	EndSingleTimeCommands(commandBuffer);
 }
 
+void VKRenderer::CreateDescriptorPool()
+{
+	// Create PerFramePool
+	{
+		std::array<VkDescriptorPoolSize, PER_FRAME_SET_COUNT> poolSizes{};
+		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSizes[0].descriptorCount = static_cast<unsigned int>(MAX_FRAMES_IN_FLIGHT);
+		poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+		poolSizes[1].descriptorCount = static_cast<unsigned int>(MAX_FRAMES_IN_FLIGHT);
+		poolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLER;
+		poolSizes[2].descriptorCount = static_cast<unsigned int>(MAX_FRAMES_IN_FLIGHT) * SAMPLERS_COUNT;
+
+		VkDescriptorPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.poolSizeCount = static_cast<unsigned int>(poolSizes.size());
+		poolInfo.pPoolSizes = poolSizes.data();
+		poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT * PER_FRAME_SET_COUNT;
+		if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mPerFrameDescriptorPool) != VK_SUCCESS)
+		{
+			// TODO: handle error ...
+		}
+	}
+
+	// Create PerDrawPool
+	{
+		VkDescriptorPoolSize poolSize{};
+		poolSize.type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+		poolSize.descriptorCount = static_cast<unsigned int>(MAX_FRAMES_IN_FLIGHT) * TEXTURES_COUNT;
+
+		VkDescriptorPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.poolSizeCount = 1;
+		poolInfo.pPoolSizes = &poolSize;
+		poolInfo.maxSets = TEXTURES_COUNT * MAX_FRAMES_IN_FLIGHT;
+		// Flag útil si vas a liberar/reusar materiales individualmente
+    	// poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+		if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mPerDrawDescriptorPool) != VK_SUCCESS)
+		{
+			// TODO: handle error ...
+		}
+	}
+}
+
 void VKRenderer::CreateDescriptorSetLayout()
 {
 	////////////////////////////////////////////////////////////////
@@ -1649,50 +1717,7 @@ void VKRenderer::CreateDescriptorSetLayout()
 	}
 }
 
-void VKRenderer::CreateDescriptorPool()
-{
-	// Create PerFramePool
-	{
-		std::array<VkDescriptorPoolSize, PER_FRAME_SET_COUNT> poolSizes{};
-		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSizes[0].descriptorCount = static_cast<unsigned int>(MAX_FRAMES_IN_FLIGHT);
-		poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-		poolSizes[1].descriptorCount = static_cast<unsigned int>(MAX_FRAMES_IN_FLIGHT);
-		poolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLER;
-		poolSizes[2].descriptorCount = static_cast<unsigned int>(MAX_FRAMES_IN_FLIGHT) * SAMPLERS_COUNT;
-
-		VkDescriptorPoolCreateInfo poolInfo{};
-		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		poolInfo.poolSizeCount = static_cast<unsigned int>(poolSizes.size());
-		poolInfo.pPoolSizes = poolSizes.data();
-		poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT * PER_FRAME_SET_COUNT;
-		if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mPerFrameDescriptorPool) != VK_SUCCESS)
-		{
-			// TODO: handle error ...
-		}
-	}
-
-	// Create PerDrawPool
-	{
-		VkDescriptorPoolSize poolSize{};
-		poolSize.type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-		poolSize.descriptorCount = static_cast<unsigned int>(MAX_FRAMES_IN_FLIGHT) * TEXTURES_COUNT;
-
-		VkDescriptorPoolCreateInfo poolInfo{};
-		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		poolInfo.poolSizeCount = 1;
-		poolInfo.pPoolSizes = &poolSize;
-		poolInfo.maxSets = TEXTURES_COUNT * MAX_FRAMES_IN_FLIGHT;
-		// Flag útil si vas a liberar/reusar materiales individualmente
-    	// poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-		if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mPerDrawDescriptorPool) != VK_SUCCESS)
-		{
-			// TODO: handle error ...
-		}
-	}
-}
-
-void VKRenderer::CreateDescriptorSet()
+void VKRenderer::CreateDescriptorSet(GraphicPipeline* graphicPipeline)
 {
 	// Alloc PerFrame Descriptor Sets
 	std::vector<VkDescriptorSetLayout> layouts;

@@ -59,12 +59,14 @@ void WizardEngine::OnTick()
 
 	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::Translate(-0.75f, -0.25f, 0.0f));
 	mRenderer->SetPerDrawVariable<Vector3>("Tint", Vector3{1.0f, 1.0f, 1.0f});
+	mRenderer->SetPerDrawVariable<Vector3>("Tint2", Vector3{2.0f, 0.0f, 0.0f});
 	mRenderer->PushPerDrawVariables();
 	mRenderer->PushTexture(mTexture0, 0);
 	mRenderer->PushVerteBuffer(mVertexBuffer);
 
 	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::Translate(0.75f, -0.25f, 0.0f));
 	mRenderer->SetPerDrawVariable<Vector3>("Tint", Vector3{1.0f, 1.0f, 1.0f});
+	mRenderer->SetPerDrawVariable<Vector3>("Tint2", Vector3{0.0f, 2.0f, 0.0f});
 	mRenderer->PushPerDrawVariables();
 	mRenderer->PushTexture(mTexture1, 0);
 	mRenderer->PushVerteBuffer(mVertexBuffer);
@@ -72,6 +74,7 @@ void WizardEngine::OnTick()
 	static float angle = 0;
 	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::Translate(0.0f, 0.0f, 0.0f) * Matrix4x4::RotateZ(angle));
 	mRenderer->SetPerDrawVariable<Vector3>("Tint", Vector3{0.4f, 2.0f, 0.4f});
+	mRenderer->SetPerDrawVariable<Vector3>("Tint2", Vector3{0.0f, 0.0f, 2.0f});
 	mRenderer->PushPerDrawVariables();
 	mRenderer->PushTexture(mTexture0, 0);
 	mRenderer->PushVerteBuffer(mVertexBuffer);

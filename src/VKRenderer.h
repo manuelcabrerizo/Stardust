@@ -83,8 +83,9 @@ private:
 	void CreateSyncObjects();
 	void CreateDescriptorPool();
 	void CreateDescriptorSetLayout();
-	void CreateDescriptorSet();
 	void CreateSamplers();
+
+	void CreateDescriptorSet(GraphicPipeline* graphicPipeline);
 
 	void LoadPerFrameConstBuffer(GraphicPipeline* graphicPipeline);
 	void LoadPerDrawConstBuffer(GraphicPipeline* graphicPipeline);

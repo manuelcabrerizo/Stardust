@@ -31,7 +31,8 @@ VK_BINDING(0, 0) cbuffer PerFrame : register(b0)
 VK_BINDING(0, 1) cbuffer PerDraw : register(b1)
 {
 	float4x4 World;
-	float3 Tint;	
+	float3 Tint;
+	float3 Tint2;
 };
 
 // Vulkan set 2 static samplers
