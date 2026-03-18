@@ -7,11 +7,11 @@ IndexBuffer::IndexBuffer()
 	mIndices = nullptr;
 }
 
-IndexBuffer::IndexBuffer(int indexQuantity)
+IndexBuffer::IndexBuffer(void *data, size_t count)
 {
-	mIndexQuantity = indexQuantity;
+	mIndexQuantity = count;
 	mIndices = new int[mIndexQuantity];
-	memset(mIndices, 0, mIndexQuantity * sizeof(int));
+	memcpy(mIndices, data, mIndexQuantity * sizeof(int));
 }
 
 IndexBuffer::IndexBuffer(const IndexBuffer* indexBuffer)
@@ -26,18 +26,6 @@ IndexBuffer::~IndexBuffer()
 {
 	Release();
 	delete[] mIndices;
-}
-
-int IndexBuffer::operator[](int i) const
-{
-	assert(i >= 0 && i < mIndexQuantity);
-	return mIndices[i];
-}
-
-int& IndexBuffer::operator[](int i)
-{
-	assert(i >= 0 && i < mIndexQuantity);
-	return mIndices[i];
 }
 
 int IndexBuffer::GetIndexQuantity() const

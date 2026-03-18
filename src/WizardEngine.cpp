@@ -3,17 +3,18 @@
 struct VertexQuad
 {
 	Vector3 Position;
+	Vector3 Normal;
 	Vector2 TCoord;
 };
 
 VertexQuad vertices[] =
 {
-    VertexQuad{ Vector3{-0.5, -0.5, 0}, Vector2{1, 0} },
-    VertexQuad{ Vector3{-0.5,  0.5, 0}, Vector2{1, 1} },
-    VertexQuad{ Vector3{0.5,  0.5, 0}, Vector2{0, 1} },
-    VertexQuad{ Vector3{0.5,  0.5, 0}, Vector2{0, 1} },
-    VertexQuad{ Vector3{0.5, -0.5, 0}, Vector2{0, 0} },
-    VertexQuad{ Vector3{-0.5, -0.5, 0}, Vector2{1, 0} },
+	VertexQuad{ Vector3{-0.5, -0.5, 0}, Vector3{}, Vector2{1, 0} },
+	VertexQuad{ Vector3{-0.5,  0.5, 0}, Vector3{}, Vector2{1, 1} },
+	VertexQuad{ Vector3{0.5,  0.5, 0},  Vector3{}, Vector2{0, 1} },
+	VertexQuad{ Vector3{0.5,  0.5, 0},  Vector3{}, Vector2{0, 1} },
+	VertexQuad{ Vector3{0.5, -0.5, 0},  Vector3{}, Vector2{0, 0} },
+	VertexQuad{ Vector3{-0.5, -0.5, 0}, Vector3{}, Vector2{1, 0} },
 };
 
 WizardEngine::WizardEngine(const Config& config)
@@ -34,11 +35,12 @@ void WizardEngine::OnInit()
 #endif
 
 	mGraphicPipeline = new GraphicPipeline(vertexShaderFilepath, pixelShaderFilepath);
+	mModel = new Model("assets/models/viking_room.obj", "assets/textures/viking_room.png");
 	mVertexBuffer = new VertexBuffer(vertices, 6, sizeof(VertexQuad));
 	mTexture0 = new Texture2D("assets/textures/tiles_floor_5.png", false);
 	mTexture1 = new Texture2D("assets/textures/tiles_floor_5_normal.png", false);
 	mView = Matrix4x4::LookAt(Vector3(0.0f, 0.0f, -2.0f), Vector3::ZeroVector, Vector3::YAxisVector);
-	mProj = Matrix4x4::Perspective(60.0f*(SD_PI/180.0f), 1280.0f / 720.0f, 0.05f, 200.0f);
+	mProj = Matrix4x4::Perspective(45.0f*(SD_PI/180.0f), 1280.0f / 720.0f, 0.05f, 200.0f);
 }
 
 void WizardEngine::OnLateInit()
@@ -47,10 +49,18 @@ void WizardEngine::OnLateInit()
 	mRenderer->LoadVertexBuffer(mVertexBuffer);
 	mRenderer->LoadTexture2D(mTexture0);
 	mRenderer->LoadTexture2D(mTexture1);
+	mModel->Load(mRenderer);
 }
 
 void WizardEngine::OnTick()
 {
+	static float angle = 0;
+	angle += 0.0001f;
+	if(angle > (SD_PI * 2.0f))
+	{
+		angle -= SD_PI * 2.0f;
+	}
+
 	mRenderer->BeginFrame();
 
 	mRenderer->PushGraphicPipeline(mGraphicPipeline);
@@ -60,35 +70,33 @@ void WizardEngine::OnTick()
 	mRenderer->SetPerFrameVariable<float>("Time", 69.0f);
 	mRenderer->PushPerFrameVariables();
 
-	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::Translate(-0.75f, -0.25f, 0.0f));
+	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::Translate(-0.75f, -0.25f, 2.0f));
 	mRenderer->SetPerDrawVariable<Vector3>("Tint", Vector3{1.0f, 1.0f, 1.0f});
 	mRenderer->SetPerDrawVariable<Vector3>("Tint2", Vector3{2.0f, 0.0f, 0.0f});
 	mRenderer->PushPerDrawVariables();
 	mRenderer->PushTexture(mTexture0, 0);
 	mRenderer->PushVerteBuffer(mVertexBuffer);
 
-	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::Translate(0.75f, -0.25f, 0.0f));
+	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::Translate(0.75f, -0.25f, 2.0f));
 	mRenderer->SetPerDrawVariable<Vector3>("Tint", Vector3{1.0f, 1.0f, 1.0f});
 	mRenderer->SetPerDrawVariable<Vector3>("Tint2", Vector3{0.0f, 2.0f, 0.0f});
 	mRenderer->PushPerDrawVariables();
 	mRenderer->PushTexture(mTexture1, 0);
 	mRenderer->PushVerteBuffer(mVertexBuffer);
 
-	static float angle = 0;
-	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::Translate(0.0f, 0.0f, 0.0f) * Matrix4x4::RotateZ(angle));
+	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::RotateZ(angle) * Matrix4x4::Translate(0.0f, 0.0f, 2.0f));
 	mRenderer->SetPerDrawVariable<Vector3>("Tint", Vector3{0.4f, 2.0f, 0.4f});
 	mRenderer->SetPerDrawVariable<Vector3>("Tint2", Vector3{0.0f, 0.0f, 2.0f});
 	mRenderer->PushPerDrawVariables();
 	mRenderer->PushTexture(mTexture0, 0);
 	mRenderer->PushVerteBuffer(mVertexBuffer);
 
-	angle += 0.001f;
-	if(angle > (SD_PI * 2.0f))
-	{
-		angle -= SD_PI * 2.0f;
-	}
+	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::RotateX(-SD_PI*0.5f) * Matrix4x4::RotateY(angle) * Matrix4x4::Translate(0.0f,  -0.25f, 0.0f));
+	mRenderer->SetPerDrawVariable<Vector3>("Tint", Vector3{1.0f, 1.0f, 1.0f});
+	mRenderer->SetPerDrawVariable<Vector3>("Tint2", Vector3{2.0f, 0.0f, 0.0f});
+	mRenderer->PushPerDrawVariables();
+	mModel->Draw(mRenderer);
 
-	
 	mRenderer->EndFrame();
 }
 
@@ -97,6 +105,7 @@ void WizardEngine::OnDestroy()
 	delete mTexture1;
 	delete mTexture0;
 	delete mVertexBuffer;
+	delete mModel;
 	delete mGraphicPipeline;
 
 	GetEventBus()->RemoveListener(EventType::WindowResizeEvent, this);
@@ -120,5 +129,5 @@ void WizardEngine::OnEvent(const Event& event)
 void WizardEngine::OnWindowResizeEvent(const WindowResizeEvent& windowResizeEvent)
 {
 	float aspect = (float)windowResizeEvent.Width / (float)windowResizeEvent.Height;
-	mProj = Matrix4x4::Perspective(60.0f*(SD_PI/180.0f), aspect, 0.05f, 200.0f);
+	mProj = Matrix4x4::Perspective(45.0f*(SD_PI/180.0f), aspect, 0.05f, 200.0f);
 }

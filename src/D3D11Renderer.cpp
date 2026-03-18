@@ -178,9 +178,15 @@ void D3D11Renderer::EndRenderingSession()
 			}break;	
 			case D3D11RenderItemType::IndexBuffer:
 			{
-				IndexBuffer *indexBuffer = item.IBuffer;
-				D3D11IndexBufferID* resource = static_cast<D3D11IndexBufferID *>(indexBuffer->GetIdentifier(this));
-				mDeviceContext->IASetIndexBuffer(resource->ID, resource->Format, 0);
+				VertexBuffer *vertexBuffer = item.IBuffer.VBuffer;
+				D3D11VertexBufferID* vResource = static_cast<D3D11VertexBufferID *>(vertexBuffer->GetIdentifier(this));
+				unsigned int vertexStride = vertexBuffer->GetVertexSize();
+				unsigned int vertexOffset = 0;
+				mDeviceContext->IASetVertexBuffers(0, 1, &vResource->ID, &vertexStride, &vertexOffset);
+
+				IndexBuffer *indexBuffer = item.IBuffer.IBuffer;
+				D3D11IndexBufferID* iResource = static_cast<D3D11IndexBufferID *>(indexBuffer->GetIdentifier(this));
+				mDeviceContext->IASetIndexBuffer(iResource->ID, iResource->Format, 0);
 				mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 				mDeviceContext->DrawIndexed(indexBuffer->GetIndexQuantity(), 0, 0);
 			}break;
@@ -450,11 +456,12 @@ void D3D11Renderer::PushVerteBuffer(VertexBuffer *vertexBuffer)
 	mRenderItems.push_back(item);
 }
 
-void D3D11Renderer::PushIndexBuffer(IndexBuffer* indexBuffer)
+void D3D11Renderer::PushIndexBuffer(IndexBuffer* indexBuffer, VertexBuffer* vertexBuffer)
 {
 	D3D11RenderItem item;
 	item.Type = D3D11RenderItemType::IndexBuffer;
-	item.IBuffer = indexBuffer;
+	item.IBuffer.VBuffer = vertexBuffer;
+	item.IBuffer.IBuffer = indexBuffer;
 	mRenderItems.push_back(item);
 }
 

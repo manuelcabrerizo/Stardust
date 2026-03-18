@@ -21,9 +21,6 @@
 
 #include <set>
 
-#include "math/Matrix4x4.h"
-#include "math/Vector3.h"
-
 class VKGraphicPipelineID : public ResourceIdentifier
 {
 public:
@@ -31,6 +28,13 @@ public:
 };
 
 class VKVertexBufferID : public ResourceIdentifier
+{
+public:
+	VkBuffer Buffer;
+	VkDeviceMemory Memory;
+};
+
+class VKIndexBufferID : public ResourceIdentifier
 {
 public:
 	VkBuffer Buffer;
@@ -265,7 +269,6 @@ void VKRenderer::EndFrame()
 	submitInfo.pCommandBuffers = &mCommandBuffers[mCurrentFrame];
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
-
 	if (vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, mInFlightFences[mCurrentFrame]) != VK_SUCCESS)
 	{
  		throw VKException("Error: vkQueueSubmit failed");
@@ -279,7 +282,6 @@ void VKRenderer::EndFrame()
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &mImageIndex;
 	presentInfo.pResults = nullptr; // Optional
-
 	VkResult result =  vkQueuePresentKHR(mPresentQueue, &presentInfo);
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || mFramebufferResized)
 	{
@@ -307,7 +309,7 @@ void VKRenderer::OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline*
 	reflectResult = spvReflectCreateShaderModule(graphicPipeline->GetPixelShaderSize(), graphicPipeline->GetPixelShaderData(), &pixelModule);
 	assert(reflectResult == SPV_REFLECT_RESULT_SUCCESS);
 
-	VkShaderModule vertShaderModule = VKUtils::CreateShaderModule(mDevice,  graphicPipeline->GetVertexShaderData(), graphicPipeline->GetVertexShaderSize());
+	VkShaderModule vertShaderModule = VKUtils::CreateShaderModule(mDevice, graphicPipeline->GetVertexShaderData(), graphicPipeline->GetVertexShaderSize());
 	VkShaderModule pixelShaderModule = VKUtils::CreateShaderModule(mDevice, graphicPipeline->GetPixelShaderData(), graphicPipeline->GetPixelShaderSize());
 	if(mPerFrame == nullptr)
 	{
@@ -527,12 +529,42 @@ void VKRenderer::OnReleaseVertexBuffer(ResourceIdentifier* id)
 
 void VKRenderer::OnLoadIndexBuffer(ResourceIdentifier*& id, IndexBuffer* indexBuffer)
 {
+	VKIndexBufferID* resource = new VKIndexBufferID();
+	id = resource;
 
+	VkDeviceSize bufferSize = indexBuffer->GetIndexQuantity() * sizeof(int);
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VKUtils::CreateBuffer(mPhysicalDevice, mDevice, bufferSize,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(mDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, indexBuffer->GetData(), (size_t)bufferSize);
+	vkUnmapMemory(mDevice, stagingBufferMemory);
+
+	VKUtils::CreateBuffer(mPhysicalDevice, mDevice, bufferSize,
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		resource->Buffer, resource->Memory);
+
+	VKUtils::CopyBuffer(mDevice, mCommandPool, mGraphicsQueue,
+						stagingBuffer, resource->Buffer, bufferSize);
+
+	vkDestroyBuffer(mDevice, stagingBuffer, nullptr);
+	vkFreeMemory(mDevice, stagingBufferMemory, nullptr);
 }
 
 void VKRenderer::OnReleaseIndexBuffer(ResourceIdentifier* id)
 {
-
+	VKIndexBufferID* resource = reinterpret_cast<VKIndexBufferID*>(id);
+	vkDeviceWaitIdle(mDevice);
+	vkDestroyBuffer(mDevice, resource->Buffer, nullptr);
+	vkFreeMemory(mDevice, resource->Memory, nullptr);
+	delete resource;
 }
 
 void VKRenderer::OnLoadTexture2D(ResourceIdentifier*& id, Texture2D* texture2d)
@@ -708,9 +740,16 @@ void VKRenderer::PushVerteBuffer(VertexBuffer* vertexBuffer)
 	vkCmdDraw(mCommandBuffers[mCurrentFrame], vertexBuffer->GetVertexCount(), 1, 0, 0);
 }
 
-void VKRenderer::PushIndexBuffer(IndexBuffer* indexBuffer)
+void VKRenderer::PushIndexBuffer(IndexBuffer* indexBuffer, VertexBuffer* vertexBuffer)
 {
+	VKVertexBufferID* vertexBufferResource = static_cast<VKVertexBufferID *>(vertexBuffer->GetIdentifier(this));
+	VkBuffer vertexBuffers[] = {vertexBufferResource->Buffer};
+	VkDeviceSize offsets[] = {0};
+	vkCmdBindVertexBuffers(mCommandBuffers[mCurrentFrame], 0, 1, vertexBuffers, offsets);
 
+	VKIndexBufferID* indexBufferResource = static_cast<VKIndexBufferID *>(indexBuffer->GetIdentifier(this));
+	vkCmdBindIndexBuffer(mCommandBuffers[mCurrentFrame], indexBufferResource->Buffer, 0, VK_INDEX_TYPE_UINT32);
+	vkCmdDrawIndexed(mCommandBuffers[mCurrentFrame], indexBuffer->GetIndexQuantity(), 1, 0, 0, 0);
 }
 
 void VKRenderer::PushTexture(Texture2D* texture2d, int slot)

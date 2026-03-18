@@ -18,8 +18,8 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 const int SAMPLERS_BINDINGS_COUNT = 4;
 const int TEXTURES_BINDINGS_COUNT = 4;
 const int SAMPLERS_COUNT = 4;
-const int TEXTURES_COUNT = 100;
-const int DYNAMIC_CONST_BUFFER_BLOCK_COUNT = 100;
+const int TEXTURES_COUNT = 1000;
+const int DYNAMIC_CONST_BUFFER_BLOCK_COUNT = 1000;
 const int PER_FRAME_SET_COUNT = 3;
 
 class VKRenderer : public Renderer, EventListener
@@ -46,7 +46,7 @@ protected:
 	void PushPerFrameVariables() override;
 	void PushPerDrawVariables() override;	
 	void PushVerteBuffer(VertexBuffer* vertexBuffer) override;
-	void PushIndexBuffer(IndexBuffer* indexBuffer) override;
+	void PushIndexBuffer(IndexBuffer* indexBuffer, VertexBuffer* vertexBuffer) override;
 	void PushTexture(Texture2D* texture2d, int slot) override;
 private:
 	void CleanupSwapChain();
@@ -71,7 +71,6 @@ private:
 	void LoadPerFrameConstBuffer(const SpvReflectShaderModule& vertexModule);
 	void LoadPerDrawConstBuffer(const SpvReflectShaderModule& vertexModule);
 	void CreateDescriptorSet();
-
 
 	VkInstance mInstance;
 	VkPhysicalDevice mPhysicalDevice;

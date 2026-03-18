@@ -7,13 +7,9 @@ class IndexBuffer : public Bindable
 {
 public:
 
-	IndexBuffer(int indexQuantity);
+	IndexBuffer(void *data, size_t count);
 	IndexBuffer(const IndexBuffer* indexBuffer);
 	virtual ~IndexBuffer();
-
-	// Access to indices
-	int operator[](int i) const;
-	int& operator[](int i);
 
 	int GetIndexQuantity() const;
 	int* GetData();

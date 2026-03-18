@@ -8,6 +8,7 @@ PS_Input main(VS_Input i)
 
 	PS_Input o;
 	o.Pos = wPos;
+	o.Nor = i.Nor;
 	o.Uv = i.Uv;
 	o.Color = Tint;
 	return o;

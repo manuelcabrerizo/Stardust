@@ -9,12 +9,14 @@
 struct VS_Input
 {
 	float3 Pos : POSITION;
+	float3 Nor : NORMAL;
 	float2 Uv  : TEXCOORD0;
 };
 
 struct PS_Input
 {
 	float4 Pos   : SV_POSITION;
+	float3 Nor   : NORMAL;
 	float2 Uv    : TEXCOORD0;
 	float3 Color : TEXCOORD1;
 };

@@ -9,6 +9,8 @@
 #include "VertexBuffer.h"
 #include "Texture2D.h"
 
+#include "Model.h"
+
 #include "math/Matrix4x4.h"
 #include "math/Vector3.h"
 
@@ -32,6 +34,8 @@ private:
 
 	Matrix4x4 mView;
 	Matrix4x4 mProj;
+
+	Model* mModel;
 };
 
 #endif

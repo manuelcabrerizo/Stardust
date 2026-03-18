@@ -24,6 +24,12 @@ struct Texture2DInfo
 	Texture2D* Texture;
 };
 
+struct IndexBufferInfo
+{
+	VertexBuffer* VBuffer;
+	IndexBuffer* IBuffer;
+};
+
 enum class D3D11RenderItemType
 {
 	ConstBuffer,
@@ -40,7 +46,7 @@ struct D3D11RenderItem
 	{
 		ConstBufferInfo Info;
 		VertexBuffer* VBuffer;
-		IndexBuffer* IBuffer;
+		IndexBufferInfo IBuffer;
 		GraphicPipeline* Pipeline;
 		Texture2DInfo Tex2DInfo;
 	};
@@ -66,7 +72,7 @@ protected:
 	void PushPerFrameVariables() override;
 	void PushPerDrawVariables() override;	
 	void PushVerteBuffer(VertexBuffer* vertexBuffer) override;
-	void PushIndexBuffer(IndexBuffer* indexBuffer) override;
+	void PushIndexBuffer(IndexBuffer* indexBuffer, VertexBuffer* vertexBuffer) override;
 	void PushTexture(Texture2D* texture2d, int slot) override;
 private:
 	bool CreateDevice();

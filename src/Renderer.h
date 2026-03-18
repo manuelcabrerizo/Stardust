@@ -57,7 +57,7 @@ public:
 	virtual void PushPerFrameVariables() = 0;
 	virtual void PushPerDrawVariables() = 0;
 	virtual void PushVerteBuffer(VertexBuffer* vertexBuffer) = 0;
-	virtual void PushIndexBuffer(IndexBuffer* indexBuffer) = 0;
+	virtual void PushIndexBuffer(IndexBuffer* indexBuffer, VertexBuffer* vertexBuffer) = 0;
 	virtual void PushTexture(Texture2D* texture2d, int slot) = 0;
 
 protected:
