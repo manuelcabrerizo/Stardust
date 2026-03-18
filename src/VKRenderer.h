@@ -11,6 +11,7 @@
 
 struct Config;
 class Platform;
+struct SpvReflectShaderModule;
 
 const bool ENABLE_VALIDATION_LAYERS = true;
 const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -66,9 +67,11 @@ private:
 	void CreateDescriptorPool();
 	void CreateDescriptorSetLayout();
 	void CreateSamplers();
-	void CreateDescriptorSet(GraphicPipeline* graphicPipeline);
-	void LoadPerFrameConstBuffer(GraphicPipeline* graphicPipeline);
-	void LoadPerDrawConstBuffer(GraphicPipeline* graphicPipeline);
+
+	void LoadPerFrameConstBuffer(const SpvReflectShaderModule& vertexModule);
+	void LoadPerDrawConstBuffer(const SpvReflectShaderModule& vertexModule);
+	void CreateDescriptorSet();
+
 
 	VkInstance mInstance;
 	VkPhysicalDevice mPhysicalDevice;

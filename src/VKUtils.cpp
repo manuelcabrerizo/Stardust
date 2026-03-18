@@ -398,14 +398,11 @@ VkShaderModule VKUtils::CreateShaderModule(VkDevice device, const char *data, si
 	return shaderModule;
 }
 
-std::vector<ConstBuffer> VKUtils::CreateConstBufferPerSet(VkPhysicalDevice device, GraphicPipeline* graphicPipeline, int set, bool dynamic)
+std::vector<ConstBuffer> VKUtils::CreateConstBufferPerSet(const SpvReflectShaderModule& vertexModule, VkPhysicalDevice device, int set, bool dynamic)
 {
-	SpvReflectShaderModule vertexModule;
-	SpvReflectResult reflectResult = spvReflectCreateShaderModule(graphicPipeline->GetVertexShaderSize(), graphicPipeline->GetVertexShaderData(), &vertexModule);
-	assert(reflectResult == SPV_REFLECT_RESULT_SUCCESS);
-
 	unsigned int count = 0;
-	reflectResult = spvReflectEnumerateDescriptorSets(&vertexModule, &count, nullptr);
+	SpvReflectResult reflectResult{};
+	reflectResult =  spvReflectEnumerateDescriptorSets(&vertexModule, &count, nullptr);
 	assert(reflectResult == SPV_REFLECT_RESULT_SUCCESS);
 	std::vector<SpvReflectDescriptorSet*> sets(count);
 	reflectResult = spvReflectEnumerateDescriptorSets(&vertexModule, &count, sets.data());
@@ -446,7 +443,5 @@ std::vector<ConstBuffer> VKUtils::CreateConstBufferPerSet(VkPhysicalDevice devic
 			constBuffers.push_back(constantBuffer);
 		}
 	}
-	spvReflectDestroyShaderModule(&vertexModule);
-
 	return constBuffers;
 }

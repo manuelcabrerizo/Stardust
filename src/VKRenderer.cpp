@@ -299,50 +299,51 @@ void VKRenderer::OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline*
 	VKGraphicPipelineID* resource = new VKGraphicPipelineID();
 	id = resource;
 
+	SpvReflectResult reflectResult{};
+	SpvReflectShaderModule vertexModule;
+	SpvReflectShaderModule pixelModule;
+	reflectResult = spvReflectCreateShaderModule(graphicPipeline->GetVertexShaderSize(), graphicPipeline->GetVertexShaderData(), &vertexModule);
+	assert(reflectResult == SPV_REFLECT_RESULT_SUCCESS);
+	reflectResult = spvReflectCreateShaderModule(graphicPipeline->GetPixelShaderSize(), graphicPipeline->GetPixelShaderData(), &pixelModule);
+	assert(reflectResult == SPV_REFLECT_RESULT_SUCCESS);
+
 	VkShaderModule vertShaderModule = VKUtils::CreateShaderModule(mDevice,  graphicPipeline->GetVertexShaderData(), graphicPipeline->GetVertexShaderSize());
 	VkShaderModule pixelShaderModule = VKUtils::CreateShaderModule(mDevice, graphicPipeline->GetPixelShaderData(), graphicPipeline->GetPixelShaderSize());
 	if(mPerFrame == nullptr)
 	{
-		LoadPerFrameConstBuffer(graphicPipeline);
+		LoadPerFrameConstBuffer(vertexModule);
 	}
 	if(mPerDraw == nullptr)
 	{
-		LoadPerDrawConstBuffer(graphicPipeline);
+		LoadPerDrawConstBuffer(vertexModule);
 	}
 	if(mPerFrame && mPerDraw && mPerFrameDescriptorSets.size() == 0)
 	{
-		CreateDescriptorSet(graphicPipeline);
+		CreateDescriptorSet();
 	}
 	else
 	{
-		assert(!"ERROR!!");
+ 		throw VKException("Error: LoadPerFrameConstBuffer or LoadPerDrawConstBuffer or CreateDescriptorSet failed");
 	}
 
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
 	vertShaderStageInfo.module = vertShaderModule;
-	vertShaderStageInfo.pName = "main";
+	vertShaderStageInfo.pName = vertexModule.entry_point_name;
 
 	VkPipelineShaderStageCreateInfo pixelShaderStageInfo{};
 	pixelShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	pixelShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	pixelShaderStageInfo.module = pixelShaderModule;
-	pixelShaderStageInfo.pName = "main";
+	pixelShaderStageInfo.pName = pixelModule.entry_point_name;
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, pixelShaderStageInfo};
-
-	// Use relfection to detect the Input Attribute Descriptor y Input Binding Descriptor
-	/////////////////////////////////////////////////////////////////////////////////////////
-	SpvReflectShaderModule vertexModule;
-	SpvReflectResult reflectResult = spvReflectCreateShaderModule(graphicPipeline->GetVertexShaderSize(), graphicPipeline->GetVertexShaderData(), &vertexModule);
-	assert(reflectResult == SPV_REFLECT_RESULT_SUCCESS);
 
 	unsigned int count = 0;
 	spvReflectEnumerateInputVariables(&vertexModule, &count, nullptr);
 	std::vector<SpvReflectInterfaceVariable*> inputVariables(count);
 	spvReflectEnumerateInputVariables(&vertexModule, &count, inputVariables.data());
-
 	int stride = 0;
 	std::vector<VkVertexInputAttributeDescription> attributeDescriptions(inputVariables.size());
 	for(int i = 0; i < inputVariables.size(); i++)
@@ -359,9 +360,6 @@ void VKRenderer::OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline*
 	bindingDescription.binding = 0;
 	bindingDescription.stride = stride;
 	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-	spvReflectDestroyShaderModule(&vertexModule);
-	/////////////////////////////////////////////////////////////////////////////////////////
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -473,6 +471,9 @@ void VKRenderer::OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline*
 
     vkDestroyShaderModule(mDevice, pixelShaderModule, nullptr);
     vkDestroyShaderModule(mDevice, vertShaderModule, nullptr);
+
+	spvReflectDestroyShaderModule(&vertexModule);
+	spvReflectDestroyShaderModule(&pixelModule);
 }
 
 void VKRenderer::OnReleaseGraphicPipeline(ResourceIdentifier* id)
@@ -1329,116 +1330,6 @@ void VKRenderer::CreateDescriptorSetLayout()
 	}
 }
 
-void VKRenderer::CreateDescriptorSet(GraphicPipeline* graphicPipeline)
-{
-	// Alloc PerFrame Descriptor Sets
-	std::vector<VkDescriptorSetLayout> layouts;
-	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-	{
-		layouts.push_back(mDescriptorSetLayout0);
-		layouts.push_back(mDescriptorSetLayout1);
-		layouts.push_back(mDescriptorSetLayout2);
-	}
-
-	VkDescriptorSetAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = mPerFrameDescriptorPool;
-	allocInfo.descriptorSetCount = static_cast<unsigned int>(layouts.size());
-	allocInfo.pSetLayouts = layouts.data();
-	mPerFrameDescriptorSets.resize(layouts.size());
-	if (vkAllocateDescriptorSets(mDevice, &allocInfo, mPerFrameDescriptorSets.data()) != VK_SUCCESS)
-	{
-		throw VKException("Error: vkAllocateDescriptorSets failed");
-	}
-
-	for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-	{
-		int frameOffset = i * PER_FRAME_SET_COUNT;
-		VkDescriptorSet set0 = mPerFrameDescriptorSets[frameOffset + 0];
-		VkDescriptorSet set1 = mPerFrameDescriptorSets[frameOffset + 1];
-		VkDescriptorSet set2 = mPerFrameDescriptorSets[frameOffset + 2];
-
-        // SET 0: Per Frame Buffers
-	    VkDescriptorBufferInfo bufferInfo{};
-	    bufferInfo.buffer = mPerFrameConstBuffers[i];
-	    bufferInfo.offset = 0;
-	    bufferInfo.range =  VK_WHOLE_SIZE;
-
-	    VkWriteDescriptorSet set0Writes{};
-		set0Writes.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		set0Writes.dstSet = set0;
-		set0Writes.dstBinding = 0;
-		set0Writes.dstArrayElement = 0;
-		set0Writes.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		set0Writes.descriptorCount = 1;
-		set0Writes.pBufferInfo = &bufferInfo;
-		vkUpdateDescriptorSets(mDevice, 1, &set0Writes, 0, nullptr);
-
-        // SET 1: Per Draw Buffers
-    	VkDescriptorBufferInfo dynamicBufferInfo{};
-	    dynamicBufferInfo.buffer = mPerDrawConstBuffers;
-	    dynamicBufferInfo.offset = 0;
-	    dynamicBufferInfo.range =  mPerDraw->GetSize();
-
-	    VkWriteDescriptorSet set1Writes{};
-		set1Writes.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		set1Writes.dstSet = set1;
-		set1Writes.dstBinding = 0;
-		set1Writes.dstArrayElement = 0;
-		set1Writes.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-		set1Writes.descriptorCount = 1;
-		set1Writes.pBufferInfo = &dynamicBufferInfo;
-		vkUpdateDescriptorSets(mDevice, 1, &set1Writes, 0, nullptr);
-
-		// SET 2: Samplers (4 bindings)
-		std::array<VkDescriptorImageInfo, SAMPLERS_COUNT> samplerInfos{};
-		std::array<VkWriteDescriptorSet, SAMPLERS_COUNT> set2Writes{};
-		for (int j = 0; j < SAMPLERS_COUNT; j++)
-		{
-			samplerInfos[j].sampler = mSamplers[j];
-			set2Writes[j].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			set2Writes[j].dstSet = set2;
-			set2Writes[j].dstBinding = j;
-			set2Writes[j].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
-			set2Writes[j].descriptorCount = 1;
-			set2Writes[j].pImageInfo = &samplerInfos[j];
-		}
-		vkUpdateDescriptorSets(mDevice, static_cast<unsigned int>(set2Writes.size()), set2Writes.data(), 0, nullptr);
-    }
-}
-
-void VKRenderer::LoadPerFrameConstBuffer(GraphicPipeline* graphicPipeline)
-{
-	std::vector<ConstBuffer> set0ConstBuffers = VKUtils::CreateConstBufferPerSet(mPhysicalDevice, graphicPipeline, 0, false);
-	assert(set0ConstBuffers.size() > 0);
-	mPerFrame = new ConstBuffer(set0ConstBuffers[0]);
-    mPerFrameConstBufferSize = mPerFrame->GetSize();
-	mPerFrameConstBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-	mPerFrameConstBufferMemory.resize(MAX_FRAMES_IN_FLIGHT);
-	mPerFrameConstBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
-	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-	{
-		VKUtils::CreateBuffer(mPhysicalDevice, mDevice,
-			mPerFrame->GetSize(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			mPerFrameConstBuffers[i], mPerFrameConstBufferMemory[i]);
-	  	vkMapMemory(mDevice, mPerFrameConstBufferMemory[i], 0, mPerFrame->GetSize(), 0, &mPerFrameConstBuffersMapped[i]);
-	}
-}
-
-void VKRenderer::LoadPerDrawConstBuffer(GraphicPipeline* graphicPipeline)
-{
-	std::vector<ConstBuffer> set1ConstBuffers = VKUtils::CreateConstBufferPerSet(mPhysicalDevice, graphicPipeline, 1, true);
-	assert(set1ConstBuffers.size() > 0);
-	mPerDraw = new ConstBuffer(set1ConstBuffers[0]);
-	size_t bufferSize = DYNAMIC_CONST_BUFFER_BLOCK_COUNT * mPerDraw->GetSize();
-	VKUtils::CreateBuffer(mPhysicalDevice, mDevice,
-		bufferSize,
-		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-		mPerDrawConstBuffers, mPerDrawConstBufferMemory);
-	mPerDrawConstBufferUsed = 0;
-}
-
 void VKRenderer::CreateSamplers()
 {
 
@@ -1516,6 +1407,117 @@ void VKRenderer::CreateSamplers()
 		throw VKException("Error: vkCreateSampler failed");
     }
 }
+
+void VKRenderer::LoadPerFrameConstBuffer(const SpvReflectShaderModule& vertexModule)
+{
+	std::vector<ConstBuffer> set0ConstBuffers = VKUtils::CreateConstBufferPerSet(vertexModule,mPhysicalDevice, 0, false);
+	assert(set0ConstBuffers.size() > 0);
+	mPerFrame = new ConstBuffer(set0ConstBuffers[0]);
+    mPerFrameConstBufferSize = mPerFrame->GetSize();
+	mPerFrameConstBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	mPerFrameConstBufferMemory.resize(MAX_FRAMES_IN_FLIGHT);
+	mPerFrameConstBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		VKUtils::CreateBuffer(mPhysicalDevice, mDevice,
+			mPerFrame->GetSize(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			mPerFrameConstBuffers[i], mPerFrameConstBufferMemory[i]);
+	  	vkMapMemory(mDevice, mPerFrameConstBufferMemory[i], 0, mPerFrame->GetSize(), 0, &mPerFrameConstBuffersMapped[i]);
+	}
+}
+
+void VKRenderer::LoadPerDrawConstBuffer(const SpvReflectShaderModule& vertexModule)
+{
+	std::vector<ConstBuffer> set1ConstBuffers = VKUtils::CreateConstBufferPerSet(vertexModule, mPhysicalDevice, 1, true);
+	assert(set1ConstBuffers.size() > 0);
+	mPerDraw = new ConstBuffer(set1ConstBuffers[0]);
+	size_t bufferSize = DYNAMIC_CONST_BUFFER_BLOCK_COUNT * mPerDraw->GetSize();
+	VKUtils::CreateBuffer(mPhysicalDevice, mDevice,
+		bufferSize,
+		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+		mPerDrawConstBuffers, mPerDrawConstBufferMemory);
+	mPerDrawConstBufferUsed = 0;
+}
+
+void VKRenderer::CreateDescriptorSet()
+{
+	// Alloc PerFrame Descriptor Sets
+	std::vector<VkDescriptorSetLayout> layouts;
+	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		layouts.push_back(mDescriptorSetLayout0);
+		layouts.push_back(mDescriptorSetLayout1);
+		layouts.push_back(mDescriptorSetLayout2);
+	}
+
+	VkDescriptorSetAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = mPerFrameDescriptorPool;
+	allocInfo.descriptorSetCount = static_cast<unsigned int>(layouts.size());
+	allocInfo.pSetLayouts = layouts.data();
+	mPerFrameDescriptorSets.resize(layouts.size());
+	if (vkAllocateDescriptorSets(mDevice, &allocInfo, mPerFrameDescriptorSets.data()) != VK_SUCCESS)
+	{
+		throw VKException("Error: vkAllocateDescriptorSets failed");
+	}
+
+	for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		int frameOffset = i * PER_FRAME_SET_COUNT;
+		VkDescriptorSet set0 = mPerFrameDescriptorSets[frameOffset + 0];
+		VkDescriptorSet set1 = mPerFrameDescriptorSets[frameOffset + 1];
+		VkDescriptorSet set2 = mPerFrameDescriptorSets[frameOffset + 2];
+
+        // SET 0: Per Frame Buffers
+	    VkDescriptorBufferInfo bufferInfo{};
+	    bufferInfo.buffer = mPerFrameConstBuffers[i];
+	    bufferInfo.offset = 0;
+	    bufferInfo.range =  VK_WHOLE_SIZE;
+
+	    VkWriteDescriptorSet set0Writes{};
+		set0Writes.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		set0Writes.dstSet = set0;
+		set0Writes.dstBinding = 0;
+		set0Writes.dstArrayElement = 0;
+		set0Writes.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		set0Writes.descriptorCount = 1;
+		set0Writes.pBufferInfo = &bufferInfo;
+		vkUpdateDescriptorSets(mDevice, 1, &set0Writes, 0, nullptr);
+
+        // SET 1: Per Draw Buffers
+    	VkDescriptorBufferInfo dynamicBufferInfo{};
+	    dynamicBufferInfo.buffer = mPerDrawConstBuffers;
+	    dynamicBufferInfo.offset = 0;
+	    dynamicBufferInfo.range =  mPerDraw->GetSize();
+
+	    VkWriteDescriptorSet set1Writes{};
+		set1Writes.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		set1Writes.dstSet = set1;
+		set1Writes.dstBinding = 0;
+		set1Writes.dstArrayElement = 0;
+		set1Writes.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+		set1Writes.descriptorCount = 1;
+		set1Writes.pBufferInfo = &dynamicBufferInfo;
+		vkUpdateDescriptorSets(mDevice, 1, &set1Writes, 0, nullptr);
+
+		// SET 2: Samplers (4 bindings)
+		std::array<VkDescriptorImageInfo, SAMPLERS_COUNT> samplerInfos{};
+		std::array<VkWriteDescriptorSet, SAMPLERS_COUNT> set2Writes{};
+		for (int j = 0; j < SAMPLERS_COUNT; j++)
+		{
+			samplerInfos[j].sampler = mSamplers[j];
+			set2Writes[j].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			set2Writes[j].dstSet = set2;
+			set2Writes[j].dstBinding = j;
+			set2Writes[j].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+			set2Writes[j].descriptorCount = 1;
+			set2Writes[j].pImageInfo = &samplerInfos[j];
+		}
+		vkUpdateDescriptorSets(mDevice, static_cast<unsigned int>(set2Writes.size()), set2Writes.data(), 0, nullptr);
+    }
+}
+
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,

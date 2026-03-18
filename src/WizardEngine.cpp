@@ -26,11 +26,14 @@ void WizardEngine::OnInit()
 	GetEventBus()->AddListener(EventType::WindowResizeEvent, this);
 
 #if SD_D3D11
-	mGraphicPipeline = new GraphicPipeline("assets/shaders/vert.dxbc", "assets/shaders/frag.dxbc");
+	const char* vertexShaderFilepath = "assets/shaders/vert.dxbc";
+	const char* pixelShaderFilepath = "assets/shaders/frag.dxbc";
 #elif SD_VULKAN
-	mGraphicPipeline = new GraphicPipeline("assets/shaders/vert.spv", "assets/shaders/frag.spv");
+	const char* vertexShaderFilepath = "assets/shaders/vert.spv";
+	const char* pixelShaderFilepath = "assets/shaders/frag.spv";
 #endif
 
+	mGraphicPipeline = new GraphicPipeline(vertexShaderFilepath, pixelShaderFilepath);
 	mVertexBuffer = new VertexBuffer(vertices, 6, sizeof(VertexQuad));
 	mTexture0 = new Texture2D("assets/textures/tiles_floor_5.png", false);
 	mTexture1 = new Texture2D("assets/textures/tiles_floor_5_normal.png", false);

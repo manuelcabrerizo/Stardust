@@ -25,6 +25,7 @@ struct SwapChainSupportDetails
 };
 
 class GraphicPipeline;
+struct SpvReflectShaderModule;
 
 class VKUtils
 {
@@ -71,7 +72,7 @@ public:
 		const VkAllocationCallbacks* pAllocator);
 
 	static VkShaderModule CreateShaderModule(VkDevice device, const char *data, size_t size);
-	static std::vector<ConstBuffer> CreateConstBufferPerSet(VkPhysicalDevice device, GraphicPipeline* graphicPipeline, int set, bool dynamic);
+	static std::vector<ConstBuffer> CreateConstBufferPerSet(const SpvReflectShaderModule& vertexModule, VkPhysicalDevice device, int set, bool dynamic);
 };
 
 class VKException : public std::exception
