@@ -25,6 +25,7 @@ SRCS  = $(SRC)/main.cpp \
 		$(SRC)/Renderer.cpp\
 		$(SRC)/D3D11Renderer.cpp \
 		$(SRC)/VKRenderer.cpp \
+		$(SRC)/VKUtils.cpp \
 		$(SRC)/Bindable.cpp \
 		$(SRC)/VertexBuffer.cpp \
 		$(SRC)/IndexBuffer.cpp \

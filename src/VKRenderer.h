@@ -5,29 +5,12 @@
 #include "EventBus.h"
 
 #include <vulkan/vulkan.h>
-#include <optional>
+
 #include <vector>
 #include <array>
 
 struct Config;
 class Platform;
-
-struct QueueFamilyIndices
-{
-	std::optional<unsigned int> GraphicsFamily;
-	std::optional<unsigned int> PresentFamily;
-	bool IsComplete()
-	{
-		return GraphicsFamily.has_value() && PresentFamily.has_value();
-	}
-};
-
-struct SwapChainSupportDetails
-{
-	VkSurfaceCapabilitiesKHR Capabilities;
-	std::vector<VkSurfaceFormatKHR> Formats;
-	std::vector<VkPresentModeKHR> PresentModes;
-};
 
 const bool ENABLE_VALIDATION_LAYERS = true;
 const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -89,24 +72,6 @@ private:
 
 	void LoadPerFrameConstBuffer(GraphicPipeline* graphicPipeline);
 	void LoadPerDrawConstBuffer(GraphicPipeline* graphicPipeline);
-
-	bool IsDeviceSiutable(VkPhysicalDevice device);
-	bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
-	SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
-	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
-	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;
-	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
-	VkShaderModule CreateShaderModule(const char *data, size_t size);
-	unsigned int FindMemoryType(unsigned int typeFilter, VkMemoryPropertyFlags properties);
-	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory); 
-	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-	void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-	void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-	VkCommandBuffer BeginSingleTimeCommands();
-	void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
-	VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-	VkFormat FindDepthFormat();
-	bool HasStencilComponent(VkFormat format);
 
 	VkInstance mInstance;
 	VkPhysicalDevice mPhysicalDevice;
