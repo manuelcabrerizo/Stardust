@@ -72,7 +72,23 @@ public:
 
 	static VkShaderModule CreateShaderModule(VkDevice device, const char *data, size_t size);
 	static std::vector<ConstBuffer> CreateConstBufferPerSet(VkPhysicalDevice device, GraphicPipeline* graphicPipeline, int set, bool dynamic);
+};
 
+class VKException : public std::exception
+{
+public:
+	VKException(const std::string& message)
+	{
+		mErrorMessage = message;
+	}
+
+	const char* what() const override
+	{
+		return mErrorMessage.c_str();
+	}
+
+private:
+	std::string mErrorMessage;
 };
 
 #endif

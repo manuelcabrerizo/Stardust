@@ -50,7 +50,6 @@ protected:
 private:
 	void CleanupSwapChain();
 	void RecreateSwapChain();
-
 	void CreateInstance(const Config& config, Platform* platform);
 	void SetUpDebugMessenger();
 	void CreateSurface(Platform* platform);
@@ -67,9 +66,7 @@ private:
 	void CreateDescriptorPool();
 	void CreateDescriptorSetLayout();
 	void CreateSamplers();
-
 	void CreateDescriptorSet(GraphicPipeline* graphicPipeline);
-
 	void LoadPerFrameConstBuffer(GraphicPipeline* graphicPipeline);
 	void LoadPerDrawConstBuffer(GraphicPipeline* graphicPipeline);
 

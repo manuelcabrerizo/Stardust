@@ -150,7 +150,7 @@ unsigned int VKUtils::FindMemoryType(VkPhysicalDevice device, unsigned int typeF
 	        return i;
 	    }
 	}
-	// TODO: handle error ...
+	throw VKException("Error: FindMemoryType failed");
 	return -1;
 }
 
@@ -205,7 +205,7 @@ void VKUtils::CreateBuffer(
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
     {
-		// TODO: handle error ...
+		throw VKException("Error: vkCreateBuffer failed");
     }
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
@@ -215,7 +215,7 @@ void VKUtils::CreateBuffer(
     allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
     if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
     {
-		// TODO: handle error ...
+		throw VKException("Error: vkAllocateMemory failed");
     }
     vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
@@ -292,20 +292,25 @@ void VKUtils::TransitionImageLayout(
 	VkPipelineStageFlags sourceStage{};
 	VkPipelineStageFlags destinationStage{};
 
-	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+	{
 	    barrier.srcAccessMask = 0;
 	    barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
 	    sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 	    destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-	} else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+	} 
+	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+	{
 	    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 	    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
 	    sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 	    destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	} else {
-			// TODO: Handle Error ...
+	}
+	else
+	{
+		throw VKException("Error: TransitionImageLayout failed");
 	}
 
 	vkCmdPipelineBarrier(
@@ -336,7 +341,7 @@ VkFormat VKUtils::FindSupportedFormat(VkPhysicalDevice device, const std::vector
             return format;
         }
     }
-	// TODO: handle error ...
+	throw VKException("Error: FindSupportedFormat failed");
 	return {};
 }
 
@@ -388,7 +393,7 @@ VkShaderModule VKUtils::CreateShaderModule(VkDevice device, const char *data, si
 	VkShaderModule shaderModule;
 	if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
 	{
-		// TODO: handle error ...
+		throw VKException("Error: vkCreateShaderModule failed");
 	}
 	return shaderModule;
 }

@@ -194,7 +194,7 @@ void VKRenderer::BeginFrame()
     }
     else if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
-		// TODO: Handle Error ...
+		throw VKException("Error: vkAcquireNextImageKHR failed");
     }
 
     vkResetFences(mDevice, 1, &mInFlightFences[mCurrentFrame]);
@@ -206,7 +206,7 @@ void VKRenderer::BeginFrame()
 	beginInfo.pInheritanceInfo = nullptr;
 	if (vkBeginCommandBuffer(mCommandBuffers[mCurrentFrame], &beginInfo) != VK_SUCCESS)
 	{
-		// TODO: Handle Error ...
+		throw VKException("Error: vkBeginCommandBuffer failed");
 	}
 
 	VkRenderPassBeginInfo renderPassInfo{};
@@ -248,7 +248,7 @@ void VKRenderer::EndFrame()
 	vkCmdEndRenderPass(mCommandBuffers[mCurrentFrame]);
 	if (vkEndCommandBuffer(mCommandBuffers[mCurrentFrame]) != VK_SUCCESS)
 	{
- 		// TODO: Handle Error ...
+ 		throw VKException("Error: vkEndCommandBuffer failed");
 	}
 
 	VkSwapchainKHR swapChains[] = {mSwapChain};
@@ -268,7 +268,7 @@ void VKRenderer::EndFrame()
 
 	if (vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, mInFlightFences[mCurrentFrame]) != VK_SUCCESS)
 	{
- 		// TODO: Handle Error ...
+ 		throw VKException("Error: vkQueueSubmit failed");
 	}
 
 	VkPresentInfoKHR presentInfo{};
@@ -288,7 +288,7 @@ void VKRenderer::EndFrame()
 	}
 	else if (result != VK_SUCCESS)
 	{
- 		// TODO: Handle Error ...
+ 		throw VKException("Error: vkQueuePresentKHR failed");
 	}
 
 	mCurrentFrame = (mCurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -468,7 +468,7 @@ void VKRenderer::OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline*
 	pipelineInfo.basePipelineIndex = -1; // Optional
 	if (vkCreateGraphicsPipelines(mDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &resource->Pipeline) != VK_SUCCESS)
 	{
-		// TODO: Handle Error ...
+		throw VKException("Error: vkCreateGraphicsPipelines failed");
 	}
 
     vkDestroyShaderModule(mDevice, pixelShaderModule, nullptr);
@@ -571,7 +571,7 @@ void VKRenderer::OnLoadTexture2D(ResourceIdentifier*& id, Texture2D* texture2d)
 		imageInfo.flags = 0; // Optional
 		if (vkCreateImage(mDevice, &imageInfo, nullptr, &resource->Image) != VK_SUCCESS)
 		{
-			// TODO: handle error ...
+			throw VKException("Error: vkCreateImage failed");
 		}
 
 		// Alloc Memory for the Image
@@ -583,7 +583,7 @@ void VKRenderer::OnLoadTexture2D(ResourceIdentifier*& id, Texture2D* texture2d)
 		allocInfo.memoryTypeIndex = VKUtils::FindMemoryType(mPhysicalDevice, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		if (vkAllocateMemory(mDevice, &allocInfo, nullptr, &resource->Memory) != VK_SUCCESS)
 		{
-			// TODO: handle error ...
+			throw VKException("Error: vkAllocateMemory failed");
 		}
 		vkBindImageMemory(mDevice, resource->Image, resource->Memory, 0);
 
@@ -615,7 +615,7 @@ void VKRenderer::OnLoadTexture2D(ResourceIdentifier*& id, Texture2D* texture2d)
 		viewInfo.subresourceRange.layerCount = 1;
 		if (vkCreateImageView(mDevice, &viewInfo, nullptr, &resource->View) != VK_SUCCESS)
 		{
-			// TODO: handle error ...
+			throw VKException("Error: vkCreateImageView failed");
 		}
 	}
 	
@@ -628,7 +628,7 @@ void VKRenderer::OnLoadTexture2D(ResourceIdentifier*& id, Texture2D* texture2d)
 		allocInfo.pSetLayouts = &mDescriptorSetLayout3;
 		if (vkAllocateDescriptorSets(mDevice, &allocInfo, &resource->DescriptorSet) != VK_SUCCESS)
 		{
-			// TODO: handle error ...
+			throw VKException("Error: vkAllocateDescriptorSets failed");
 		}
 		// Set 2 is for Texture Data 4 bindings slots
 		VkDescriptorImageInfo imageInfo{};
@@ -749,7 +749,7 @@ void VKRenderer::CreateInstance(const Config& config, Platform* platform)
 		}
 		if(!found)
 		{
-			// TODO: Handle Error ...
+			throw VKException("Error: mRequiredExtension not founded");
 		}
 	}
 
@@ -771,7 +771,7 @@ void VKRenderer::CreateInstance(const Config& config, Platform* platform)
 		}
 		if(!found)
 		{
-			// TODO: Handle Error ...
+			throw VKException("Error: mRequiredLayers not founded");
 		}
 	}
 
@@ -797,7 +797,7 @@ void VKRenderer::CreateInstance(const Config& config, Platform* platform)
 	}
 	if(vkCreateInstance(&createInfo, nullptr, &mInstance) != VK_SUCCESS)
 	{
-		// TODO: handle error ...
+		throw VKException("Error: vkCreateInstance failed");
 	}
 }
 
@@ -811,7 +811,7 @@ void VKRenderer::SetUpDebugMessenger()
 	PopulateDebugMessengerCreateInfo(createInfo);
 	if (VKUtils::CreateDebugUtilsMessengerEXT(mInstance, &createInfo, nullptr, &mDebugMessenger) != VK_SUCCESS)
 	{
-    	// TODO: Handle Error
+    	throw VKException("Error: VKUtils::CreateDebugUtilsMessengerEXT failed");
 	}
 }
 
@@ -823,7 +823,7 @@ void VKRenderer::PickPhysicalDevice()
 	vkEnumeratePhysicalDevices(mInstance, &deviceCount, nullptr);
 	if(deviceCount == 0)
 	{
-		// TODO: Handle Error
+    	throw VKException("Error: non GPU compatible with vulkan was founded");
 	}
 	std::vector<VkPhysicalDevice> devices(deviceCount);
 	vkEnumeratePhysicalDevices(mInstance, &deviceCount, devices.data());
@@ -838,7 +838,7 @@ void VKRenderer::PickPhysicalDevice()
 
 	if(mPhysicalDevice == VK_NULL_HANDLE)
 	{
-		// TODO: Handle Error
+    	throw VKException("Error: non GPU compatible with vulkan was founded");
 	}
 }
 
@@ -882,7 +882,7 @@ void VKRenderer::CreateLogicalDevice()
 
 	if(vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice) != VK_SUCCESS)
 	{
-		// TODO: handle error ...
+		throw VKException("Error: vkCreateDevice failed");
 	}
 
 	vkGetDeviceQueue(mDevice, indices.GraphicsFamily.value(), 0, &mGraphicsQueue);
@@ -893,7 +893,7 @@ void VKRenderer::CreateSurface(Platform* platform)
 {
 	if(!platform->CreateVulkanPlatformSurface(mInstance, mSurface))
 	{
-		// TODO: handle error ...
+		throw VKException("Error: CreateVulkanPlatformSurface failed");
 	}
 }
 
@@ -941,7 +941,7 @@ void VKRenderer::CreateSwapChain()
 	createInfo.oldSwapchain = VK_NULL_HANDLE;
 	if (vkCreateSwapchainKHR(mDevice, &createInfo, nullptr, &mSwapChain) != VK_SUCCESS)
 	{
-		// TODO: handle error ...
+		throw VKException("Error: vkCreateSwapchainKHR failed");
 	}
 
 	vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imageCount, nullptr);
@@ -972,7 +972,7 @@ void VKRenderer::CreateImageView()
 		createInfo.subresourceRange.layerCount = 1;
 		if (vkCreateImageView(mDevice, &createInfo, nullptr, &mSwapChainImageViews[i]) != VK_SUCCESS)
 		{
-			// TODO: handle error ...
+			throw VKException("Error: vkCreateImageView failed");
 		}
 	}
 }
@@ -998,7 +998,7 @@ void VKRenderer::CreateDepthResource()
 	imageInfo.flags = 0; // Optional
 	if (vkCreateImage(mDevice, &imageInfo, nullptr, &mDepthImage) != VK_SUCCESS)
 	{
-		// TODO: handle error ...
+		throw VKException("Error: vkCreateImage failed");
 	}
 
 	// Alloc Memory for the Image
@@ -1010,7 +1010,7 @@ void VKRenderer::CreateDepthResource()
 	allocInfo.memoryTypeIndex = VKUtils::FindMemoryType(mPhysicalDevice, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 	if (vkAllocateMemory(mDevice, &allocInfo, nullptr, &mDepthImageMemory) != VK_SUCCESS)
 	{
-		// TODO: handle error ...
+		throw VKException("Error: vkAllocateMemory failed");
 	}
 	vkBindImageMemory(mDevice, mDepthImage, mDepthImageMemory, 0);
 
@@ -1028,7 +1028,7 @@ void VKRenderer::CreateDepthResource()
 	viewInfo.subresourceRange.layerCount = 1;
 	if (vkCreateImageView(mDevice, &viewInfo, nullptr, &mDepthImageView) != VK_SUCCESS)
 	{
-		// TODO: handle error ...
+		throw VKException("Error: vkCreateImageView failed");
 	}
 }
 
@@ -1088,7 +1088,7 @@ void VKRenderer::CreateRenderPass()
 
 	if (vkCreateRenderPass(mDevice, &renderPassInfo, nullptr, &mRenderPass) != VK_SUCCESS)
 	{
-			// TODO: handle error ...
+		throw VKException("Error: vkCreateRenderPass failed");
 	}
 }
 
@@ -1112,7 +1112,7 @@ void VKRenderer::CreateFramebuffers()
 		framebufferInfo.layers = 1;
 		if (vkCreateFramebuffer(mDevice, &framebufferInfo, nullptr, &mSwapChainFramebuffers[i]) != VK_SUCCESS)
 		{
-			// TODO: handle error ...
+			throw VKException("Error: vkCreateFramebuffer failed");
 		}
 	}
 }
@@ -1126,7 +1126,7 @@ void VKRenderer::CreateCommandPool()
 	poolInfo.queueFamilyIndex = queueFamilyIndices.GraphicsFamily.value();
 	if (vkCreateCommandPool(mDevice, &poolInfo, nullptr, &mCommandPool) != VK_SUCCESS)
 	{
-    	// TODO: handle error ...
+    	throw VKException("Error: vkCreateCommandPool failed");
 	}
 }
 
@@ -1140,7 +1140,7 @@ void VKRenderer::CreateCommandBuffer()
 	allocInfo.commandBufferCount = MAX_FRAMES_IN_FLIGHT;
 	if (vkAllocateCommandBuffers(mDevice, &allocInfo, mCommandBuffers.data()) != VK_SUCCESS)
 	{
-    	// TODO: handle error ...
+    	throw VKException("Error: vkAllocateCommandBuffers failed");
 	}
 }
 
@@ -1162,7 +1162,7 @@ void VKRenderer::CreateSyncObjects()
 	    if (vkCreateSemaphore(mDevice, &semaphoreInfo, nullptr, &mImageAvailableSemaphores[i]) != VK_SUCCESS ||
 		    vkCreateFence(mDevice, &fenceInfo, nullptr, &mInFlightFences[i]) != VK_SUCCESS)
 		{
-	    	// TODO: handle error ...
+	    	throw VKException("Error: CreateSyncObjects failed");
 		}
     }
 
@@ -1170,7 +1170,7 @@ void VKRenderer::CreateSyncObjects()
     {
 	    if (vkCreateSemaphore(mDevice, &semaphoreInfo, nullptr, &mRenderFinishedSemaphores[i]) != VK_SUCCESS)
 		{
-	    	// TODO: handle error ...
+	    	throw VKException("Error: CreateSyncObjects failed");
 		}
     }
 }
@@ -1194,7 +1194,7 @@ void VKRenderer::CreateDescriptorPool()
 		poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT * PER_FRAME_SET_COUNT;
 		if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mPerFrameDescriptorPool) != VK_SUCCESS)
 		{
-			// TODO: handle error ...
+			throw VKException("Error: vkCreateDescriptorPool failed");
 		}
 	}
 
@@ -1213,7 +1213,7 @@ void VKRenderer::CreateDescriptorPool()
     	// poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 		if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mPerDrawDescriptorPool) != VK_SUCCESS)
 		{
-			// TODO: handle error ...
+			throw VKException("Error: vkCreateDescriptorPool failed");
 		}
 	}
 }
@@ -1237,7 +1237,7 @@ void VKRenderer::CreateDescriptorSetLayout()
 		layoutInfo.pBindings = &perFrameLayoutBinding;
 		if (vkCreateDescriptorSetLayout(mDevice, &layoutInfo, nullptr, &mDescriptorSetLayout0) != VK_SUCCESS)
 		{
-			// TODO: Handle Error ...
+			throw VKException("Error: vkCreateDescriptorSetLayout failed");
 		}
 	}
 
@@ -1258,7 +1258,7 @@ void VKRenderer::CreateDescriptorSetLayout()
 		layoutInfo.pBindings = &perDrawLayoutBinding;
 		if (vkCreateDescriptorSetLayout(mDevice, &layoutInfo, nullptr, &mDescriptorSetLayout1) != VK_SUCCESS)
 		{
-			// TODO: Handle Error ...
+			throw VKException("Error: vkCreateDescriptorSetLayout failed");
 		}
 
 	}
@@ -1281,7 +1281,7 @@ void VKRenderer::CreateDescriptorSetLayout()
 		layoutInfo.pBindings = samplerBindings;
 		if (vkCreateDescriptorSetLayout(mDevice, &layoutInfo, nullptr, &mDescriptorSetLayout2) != VK_SUCCESS)
 		{
-			// TODO: Handle Error ...
+			throw VKException("Error: vkCreateDescriptorSetLayout failed");
 		}
 	}
 
@@ -1305,7 +1305,7 @@ void VKRenderer::CreateDescriptorSetLayout()
 		layoutInfo.pBindings = textureBindings;
 		if (vkCreateDescriptorSetLayout(mDevice, &layoutInfo, nullptr, &mDescriptorSetLayout3) != VK_SUCCESS)
 		{
-			// TODO: Handle Error ...
+			throw VKException("Error: vkCreateDescriptorSetLayout failed");
 		}
 	}
 
@@ -1325,7 +1325,7 @@ void VKRenderer::CreateDescriptorSetLayout()
 	pipelineLayoutInfo.pPushConstantRanges = nullptr;
 	if (vkCreatePipelineLayout(mDevice, &pipelineLayoutInfo, nullptr, &mLayout) != VK_SUCCESS)
 	{
-		// TODO: Handle Error ...
+		throw VKException("Error: vkCreatePipelineLayout failed");
 	}
 }
 
@@ -1348,7 +1348,7 @@ void VKRenderer::CreateDescriptorSet(GraphicPipeline* graphicPipeline)
 	mPerFrameDescriptorSets.resize(layouts.size());
 	if (vkAllocateDescriptorSets(mDevice, &allocInfo, mPerFrameDescriptorSets.data()) != VK_SUCCESS)
 	{
-		// TODO: handle error ...
+		throw VKException("Error: vkAllocateDescriptorSets failed");
 	}
 
 	for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
@@ -1461,7 +1461,7 @@ void VKRenderer::CreateSamplers()
 	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 	if (vkCreateSampler(mDevice, &samplerInfo, nullptr, &mSamplers[0]) != VK_SUCCESS)
 	{
-		// TODO: handle error ...
+		throw VKException("Error: vkCreateSampler failed");
     }
 
     samplerInfo.magFilter = VK_FILTER_LINEAR;
@@ -1478,7 +1478,7 @@ void VKRenderer::CreateSamplers()
 	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 	if (vkCreateSampler(mDevice, &samplerInfo, nullptr, &mSamplers[1]) != VK_SUCCESS)
 	{
-		// TODO: handle error ...
+		throw VKException("Error: vkCreateSampler failed");
     }
 
     samplerInfo.magFilter = VK_FILTER_NEAREST;
@@ -1495,7 +1495,7 @@ void VKRenderer::CreateSamplers()
 	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 	if (vkCreateSampler(mDevice, &samplerInfo, nullptr, &mSamplers[2]) != VK_SUCCESS)
 	{
-		// TODO: handle error ...
+		throw VKException("Error: vkCreateSampler failed");
     }
 
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -1513,7 +1513,7 @@ void VKRenderer::CreateSamplers()
 	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 	if (vkCreateSampler(mDevice, &samplerInfo, nullptr, &mSamplers[3]) != VK_SUCCESS)
 	{
-		// TODO: handle error ...
+		throw VKException("Error: vkCreateSampler failed");
     }
 }
 
