@@ -2,6 +2,7 @@
 #define D3D11_RENDERER_H
 
 #include "Renderer.h"
+#include "EventBus.h"
 
 #include <d3d11_1.h>
 #include <d3dcompiler.h>
@@ -52,11 +53,15 @@ struct D3D11RenderItem
 	};
 };
 
-class D3D11Renderer : public Renderer
+class D3D11Renderer : public Renderer, EventListener
 {
 public:
 	D3D11Renderer(const Config& config, Platform* platform);
 	~D3D11Renderer();
+
+	void OnEvent(const Event& event) override;
+	void OnWindowResizeEvent(const WindowResizeEvent& windowResizeEvent);
+
 	void BeginFrame() override;
 	void EndFrame() override;
 protected:

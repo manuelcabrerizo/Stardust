@@ -39,7 +39,7 @@ void WizardEngine::OnInit()
 	mVertexBuffer = new VertexBuffer(vertices, 6, sizeof(VertexQuad));
 	mTexture0 = new Texture2D("assets/textures/tiles_floor_5.png", false);
 	mTexture1 = new Texture2D("assets/textures/tiles_floor_5_normal.png", false);
-	mView = Matrix4x4::LookAt(Vector3(0.0f, 0.0f, -2.0f), Vector3::ZeroVector, Vector3::YAxisVector);
+	mView = Matrix4x4::LookAt(Vector3(0.0f, 2.0f, -2.0f), Vector3::ZeroVector, Vector3::YAxisVector);
 	mProj = Matrix4x4::Perspective(45.0f*(SD_PI/180.0f), 1280.0f / 720.0f, 0.05f, 200.0f);
 }
 

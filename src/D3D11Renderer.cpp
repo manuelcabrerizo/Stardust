@@ -56,6 +56,8 @@ public:
 
 D3D11Renderer::D3D11Renderer(const Config& config, Platform* platform)
 {
+	GetEventBus()->AddListener(EventType::WindowResizeEvent, this);
+
 	mWindow = static_cast<HWND>(platform->GetWindowHandle());
 
 	mDevice = nullptr;
@@ -120,6 +122,49 @@ D3D11Renderer::~D3D11Renderer()
 	mDeviceContext1->Release();
 	mDeviceContext->Release();
 	mDevice->Release();
+
+	GetEventBus()->RemoveListener(EventType::WindowResizeEvent, this);
+}
+
+void D3D11Renderer::OnEvent(const Event& event)
+{
+	switch(event.Type)
+	{
+		case EventType::WindowResizeEvent:
+		{
+			OnWindowResizeEvent(reinterpret_cast<const WindowResizeEvent&>(event));
+		}break;
+		default:
+		{
+			assert(!"ERROR!");
+		}
+	};
+}
+
+void D3D11Renderer::OnWindowResizeEvent(const WindowResizeEvent& windowResizeEvent)
+{
+	mDeviceContext->OMSetRenderTargets(0, 0, 0);
+	mRenderTargetView->Release();
+	mDepthStencilView->Release();
+
+	mSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+
+	CreateRenderTargetView();
+
+	Config config{};
+	config.ScreenWidth = windowResizeEvent.Width;
+	config.ScreenHeight = windowResizeEvent.Height;
+	CreateDepthStencilView(config);
+
+	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+	D3D11_VIEWPORT vp;
+	vp.Width = static_cast<float>(windowResizeEvent.Width);
+	vp.Height = static_cast<float>(windowResizeEvent.Height);
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = 0;
+	vp.TopLeftY = 0;
+	mDeviceContext->RSSetViewports( 1, &vp );
 }
 
 void D3D11Renderer::BeginFrame()
