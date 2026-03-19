@@ -33,6 +33,27 @@ public:
 
 	void BeginFrame(float r, float g, float b) override;
 	void EndFrame() override;
+
+	VkPhysicalDevice GetPhysicalDevice() const
+	{
+		return mPhysicalDevice;
+	}
+
+	VkDevice GetDevice() const
+	{
+		return mDevice;
+	}
+
+	unsigned int GetCurrentFrame() const
+	{
+		return mCurrentFrame;
+	}
+
+	VkCommandBuffer GetCommandBuffer(int frameIndex) const
+	{
+		return mCommandBuffers[frameIndex];
+	}
+
 protected:
 	void OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline* graphicPipeline) override;
 	void OnReleaseGraphicPipeline(ResourceIdentifier* id) override;

@@ -22,9 +22,12 @@ SRCS  = $(SRC)/main.cpp \
 		$(SRC)/StardustEngine.cpp \
 		$(SRC)/Platform.cpp \
 		$(SRC)/Win32Platform.cpp \
-		$(SRC)/Renderer.cpp\
+		$(SRC)/Renderer.cpp \
+		$(SRC)/BatchRenderer.cpp \
 		$(SRC)/D3D11Renderer.cpp \
+		$(SRC)/D3D11BatchRenderer.cpp \
 		$(SRC)/VKRenderer.cpp \
+		$(SRC)/VKBatchRenderer.cpp \
 		$(SRC)/VKUtils.cpp \
 		$(SRC)/Bindable.cpp \
 		$(SRC)/VertexBuffer.cpp \
@@ -42,6 +45,7 @@ SRCS  = $(SRC)/main.cpp \
 		$(SRC)/Model.cpp
 
 SHADERS = $(SHADER)/Vertex.hlsl \
+	      $(SHADER)/Vertex2D.hlsl \
 		  $(SHADER)/Pixel.hlsl
 
 $(APP) : $(SRCS)
@@ -49,6 +53,8 @@ $(APP) : $(SRCS)
 
 sh : $(SHADERS)
 	fxc -O3 -T vs_5_0 -E main -Fo $(SHADER)/vert.dxbc $(SHADER)/Vertex.hlsl
+	fxc -O3 -T vs_5_0 -E main -Fo $(SHADER)/vert2d.dxbc $(SHADER)/Vertex2D.hlsl
 	fxc -O3 -T ps_5_0 -E main -Fo $(SHADER)/frag.dxbc $(SHADER)/Pixel.hlsl
 	$(DXC) -spirv -T vs_6_0 -E main -DSPIRV -fspv-target-env=vulkan1.0 -Fo $(SHADER)/vert.spv $(SHADER)/Vertex.hlsl
+	$(DXC) -spirv -T vs_6_0 -E main -DSPIRV -fspv-target-env=vulkan1.0 -Fo $(SHADER)/vert2d.spv $(SHADER)/Vertex2D.hlsl
 	$(DXC) -spirv -T ps_6_0 -E main -DSPIRV -fspv-target-env=vulkan1.0 -Fo $(SHADER)/frag.spv $(SHADER)/Pixel.hlsl

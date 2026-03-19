@@ -8,6 +8,9 @@
 #include "IndexBuffer.h"
 #include "ConstBuffer.h"
 #include "Texture2D.h"
+#include "Sprite.h"
+
+#include  "D3D11BatchRenderer.h"
 
 #include <string>
 #include <unordered_map>
@@ -249,6 +252,11 @@ void D3D11Renderer::EndRenderingSession()
 				D3D11Texture2DID* resource = reinterpret_cast<D3D11Texture2DID*>(info.Texture->GetIdentifier(this));
 		     	mDeviceContext->PSSetShaderResources(info.Slot, 1, &resource->ShaderResourceView);
 			}break; 
+			case D3D11RenderItemType::BatchRenderer:
+			{
+				D3D11BatchRenderer *batch = item.Batch;
+				batch->DrawBuffer();
+			}break;
 		}
 	}
 	mGlobalConstBufferUsed = 0;
@@ -519,6 +527,14 @@ void D3D11Renderer::PushTexture(Texture2D* texture2d, int slot)
 	D3D11RenderItem item;
 	item.Type = D3D11RenderItemType::Texture2D;
 	item.Tex2DInfo = info;
+	mRenderItems.push_back(item);
+}
+
+void D3D11Renderer::PushBatchRenderer(D3D11BatchRenderer* batch)
+{
+	D3D11RenderItem item;
+	item.Type = D3D11RenderItemType::BatchRenderer;
+	item.Batch = batch;
 	mRenderItems.push_back(item);
 }
 

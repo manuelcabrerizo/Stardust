@@ -12,13 +12,6 @@
 #include <exception>
 #include <string>
 
-struct ModelVertex
-{
-	Vector3 Position;
-	Vector3 Normal;
-	Vector2 TCoord;
-};
-
 Model::Model(const char* modelFilepath, const char* textureFilePath)
 {
 	tinyobj::attrib_t attrib;

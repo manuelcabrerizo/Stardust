@@ -9,7 +9,9 @@ class GraphicPipeline;
 class VertexBuffer;
 class IndexBuffer;
 class Texture2D;
+struct Sprite;
 
+#include "math/Vector3.h"
 #include "ConstBuffer.h"
 
 #include <string>
@@ -59,7 +61,6 @@ public:
 	virtual void PushVerteBuffer(VertexBuffer* vertexBuffer) = 0;
 	virtual void PushIndexBuffer(IndexBuffer* indexBuffer, VertexBuffer* vertexBuffer) = 0;
 	virtual void PushTexture(Texture2D* texture2d, int slot) = 0;
-
 protected:
 	Renderer();
 

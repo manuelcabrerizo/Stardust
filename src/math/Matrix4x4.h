@@ -29,7 +29,7 @@ struct alignas(16) Matrix4x4
 	static Vector3 TransformVector(const Matrix4x4& mat, const Vector3& vec);
 	static Matrix4x4 Frustum(float l, float r, float b, float t, float n, float f);
 	static Matrix4x4 Perspective(float fov, float aspect, float znear, float zfar);
-	static Matrix4x4 Ortho(float l, float r, float b, float t, float n, float f);
+	static Matrix4x4 Orthographic(float l, float r, float b, float t, float n, float f);
 	static Matrix4x4 LookAt(const Vector3& position, const Vector3& target, const Vector3& up);
 	static Matrix4x4 Translate(float x, float y, float z);
 	static Matrix4x4 Translate(const Vector3& pos);

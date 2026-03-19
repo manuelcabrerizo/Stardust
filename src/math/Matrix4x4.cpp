@@ -118,7 +118,7 @@ Matrix4x4 Matrix4x4::Perspective(float fov, float aspect, float znear, float zfa
     return Frustum(-xmax, xmax, -ymax, ymax, znear, zfar);
 }
 
-Matrix4x4 Matrix4x4::Ortho(float l, float r, float b, float t, float n, float f)
+Matrix4x4 Matrix4x4::Orthographic(float l, float r, float b, float t, float n, float f)
 {
     assert(!(l == r || t == b || n == f));
     #if SD_D3D11

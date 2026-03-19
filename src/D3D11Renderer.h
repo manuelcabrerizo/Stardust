@@ -10,6 +10,7 @@
 
 struct Config;
 class Platform;
+class D3D11BatchRenderer;
 
 struct ConstBufferInfo
 {
@@ -37,7 +38,8 @@ enum class D3D11RenderItemType
 	VertexBuffer,
 	IndexBuffer,
 	GraphicPipeline,
-	Texture2D
+	Texture2D,
+	BatchRenderer
 };
 
 struct D3D11RenderItem
@@ -50,6 +52,7 @@ struct D3D11RenderItem
 		IndexBufferInfo IBuffer;
 		GraphicPipeline* Pipeline;
 		Texture2DInfo Tex2DInfo;
+		D3D11BatchRenderer* Batch;
 	};
 };
 
@@ -64,6 +67,18 @@ public:
 
 	void BeginFrame(float r, float g, float b) override;
 	void EndFrame() override;
+
+	ID3D11Device* GetDevice() const
+	{
+		return mDevice;
+	}
+
+	ID3D11DeviceContext* GetDeviceContext() const
+	{
+		return mDeviceContext;
+	}
+	void PushBatchRenderer(D3D11BatchRenderer* batch);
+
 protected:
 	void OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline* graphicPipeline) override;
 	void OnReleaseGraphicPipeline(ResourceIdentifier* id) override;

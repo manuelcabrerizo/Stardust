@@ -323,10 +323,6 @@ void VKRenderer::OnLoadGraphicPipeline(ResourceIdentifier*& id, GraphicPipeline*
 	{
 		CreateDescriptorSet();
 	}
-	else
-	{
- 		throw VKException("Error: LoadPerFrameConstBuffer or LoadPerDrawConstBuffer or CreateDescriptorSet failed");
-	}
 
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

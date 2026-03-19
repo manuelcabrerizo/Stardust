@@ -1,0 +1,106 @@
+#
+# rTexPacker atlas descriptor file (v5.0)
+#
+# Number of packed sprites:     95
+#
+# Atlas info:    a <imagePath> <width> <height> <spriteCount> <isFont> <fontSize>
+# Sprite info:   s <nameId> <tag> <originX> <originY> <positionX> <positionY> <sourceWidth> <sourceHeight> <padding> <trimmed> <trimRecX> <trimRecY> <trimRecWidth> <trimRecHeight> <colliderType> <colliderX> <colliderY> <colliderSizeX> <colliderSizeY> <charValue> <charOffsetX> <charOffsetY> <charAdvanceX>
+#
+# NOTE: This atlas contains a sprite font description
+#
+a atlas.png 1024 1024 95 1 64
+s Alice_in_Wonderland_3-U0020 "" 0 0 4 4 15 64 0 0 0 0 15 64 0 0 0 0 0 32 0 0 15
+s Alice_in_Wonderland_3-U0021 "" 0 0 329 72 12 43 0 0 0 0 12 43 0 0 0 0 0 33 0 8 11
+s Alice_in_Wonderland_3-U0022 "" 0 0 609 121 11 14 0 0 0 0 11 14 0 0 0 0 0 34 0 10 11
+s Alice_in_Wonderland_3-U0023 "" 0 0 927 72 33 31 0 0 0 0 33 31 0 0 0 0 0 35 0 15 33
+s Alice_in_Wonderland_3-U0024 "" 0 0 324 4 21 48 0 0 0 0 21 48 0 0 0 0 0 36 0 5 21
+s Alice_in_Wonderland_3-U0025 "" 0 0 173 72 35 44 0 0 0 0 35 44 0 0 0 0 0 37 0 7 36
+s Alice_in_Wonderland_3-U0026 "" 0 0 290 72 35 43 0 0 0 0 35 43 0 0 0 0 0 38 0 8 36
+s Alice_in_Wonderland_3-U0027 "" 0 0 624 121 5 12 0 0 0 0 5 12 0 0 0 0 0 39 0 12 4
+s Alice_in_Wonderland_3-U0028 "" 0 0 56 72 14 45 0 0 0 0 14 45 0 0 0 0 0 40 0 7 14
+s Alice_in_Wonderland_3-U0029 "" 0 0 38 72 14 45 0 0 0 0 14 45 0 0 0 0 0 41 0 7 13
+s Alice_in_Wonderland_3-U002A "" 0 0 723 121 5 5 0 0 0 0 5 5 0 0 0 0 0 42 1 11 5
+s Alice_in_Wonderland_3-U002B "" 0 0 532 121 24 24 0 0 0 0 24 24 0 0 0 0 0 43 2 21 30
+s Alice_in_Wonderland_3-U002C "" 0 0 633 121 7 11 0 0 0 0 7 11 0 0 0 0 0 44 0 41 7
+s Alice_in_Wonderland_3-U002D "" 0 0 699 121 20 6 0 0 0 0 20 6 0 0 0 0 0 45 0 30 19
+s Alice_in_Wonderland_3-U002E "" 0 0 688 121 7 8 0 0 0 0 7 8 0 0 0 0 0 46 0 40 9
+s Alice_in_Wonderland_3-U002F "" 0 0 663 4 22 46 0 0 0 0 22 46 0 0 0 0 0 47 0 7 22
+s Alice_in_Wonderland_3-U0030 "" 0 0 652 72 32 38 0 0 0 0 32 38 0 0 0 0 0 48 0 10 33
+s Alice_in_Wonderland_3-U0031 "" 0 0 847 72 22 32 0 0 0 0 22 32 0 0 0 0 0 49 0 13 22
+s Alice_in_Wonderland_3-U0032 "" 0 0 576 72 32 40 0 0 0 0 32 40 0 0 0 0 0 50 0 9 32
+s Alice_in_Wonderland_3-U0033 "" 0 0 717 72 30 38 0 0 0 0 30 38 0 0 0 0 0 51 0 10 30
+s Alice_in_Wonderland_3-U0034 "" 0 0 514 72 30 42 0 0 0 0 30 42 0 0 0 0 0 52 -1 8 29
+s Alice_in_Wonderland_3-U0035 "" 0 0 960 4 37 45 0 0 0 0 37 45 0 0 0 0 0 53 -1 6 37
+s Alice_in_Wonderland_3-U0036 "" 0 0 548 72 24 41 0 0 0 0 24 41 0 0 0 0 0 54 0 9 24
+s Alice_in_Wonderland_3-U0037 "" 0 0 791 72 27 36 0 0 0 0 27 36 0 0 0 0 0 55 0 11 27
+s Alice_in_Wonderland_3-U0038 "" 0 0 688 72 25 38 0 0 0 0 25 38 0 0 0 0 0 56 0 11 26
+s Alice_in_Wonderland_3-U0039 "" 0 0 404 72 25 42 0 0 0 0 25 42 0 0 0 0 0 57 -1 9 24
+s Alice_in_Wonderland_3-U003A "" 0 0 560 121 7 22 0 0 0 0 7 22 0 0 0 0 0 58 0 23 6
+s Alice_in_Wonderland_3-U003B "" 0 0 4 121 8 28 0 0 0 0 8 28 0 0 0 0 0 59 -1 22 7
+s Alice_in_Wonderland_3-U003C "" 0 0 590 121 15 21 0 0 0 0 15 21 0 0 0 0 0 60 0 19 14
+s Alice_in_Wonderland_3-U003D "" 0 0 553 4 106 47 0 0 0 0 106 47 0 0 0 0 0 61 0 4 110
+s Alice_in_Wonderland_3-U003E "" 0 0 571 121 15 21 0 0 0 0 15 21 0 0 0 0 0 62 0 19 14
+s Alice_in_Wonderland_3-U003F "" 0 0 349 4 25 47 0 0 0 0 25 47 0 0 0 0 0 63 0 5 25
+s Alice_in_Wonderland_3-U0040 "" 0 0 612 72 36 39 0 0 0 0 36 39 0 0 0 0 0 64 0 10 37
+s Alice_in_Wonderland_3-U0041 "" 0 0 74 72 46 45 0 0 0 0 46 45 0 0 0 0 0 65 -4 7 37
+s Alice_in_Wonderland_3-U0042 "" 0 0 777 4 35 45 0 0 0 0 35 45 0 0 0 0 0 66 -5 8 30
+s Alice_in_Wonderland_3-U0043 "" 0 0 212 72 33 44 0 0 0 0 33 44 0 0 0 0 0 67 -1 8 32
+s Alice_in_Wonderland_3-U0044 "" 0 0 816 4 38 45 0 0 0 0 38 45 0 0 0 0 0 68 -3 8 35
+s Alice_in_Wonderland_3-U0045 "" 0 0 858 4 34 45 0 0 0 0 34 45 0 0 0 0 0 69 0 7 35
+s Alice_in_Wonderland_3-U0046 "" 0 0 896 4 31 45 0 0 0 0 31 45 0 0 0 0 0 70 0 6 31
+s Alice_in_Wonderland_3-U0047 "" 0 0 433 72 36 42 0 0 0 0 36 42 0 0 0 0 0 71 0 9 35
+s Alice_in_Wonderland_3-U0048 "" 0 0 689 4 38 46 0 0 0 0 38 46 0 0 0 0 0 72 -2 9 35
+s Alice_in_Wonderland_3-U0049 "" 0 0 4 72 30 45 0 0 0 0 30 45 0 0 0 0 0 73 -2 8 23
+s Alice_in_Wonderland_3-U004A "" 0 0 248 4 33 49 0 0 0 0 33 49 0 0 0 0 0 74 -2 5 28
+s Alice_in_Wonderland_3-U004B "" 0 0 124 72 45 44 0 0 0 0 45 44 0 0 0 0 0 75 -1 9 40
+s Alice_in_Wonderland_3-U004C "" 0 0 205 4 39 49 0 0 0 0 39 49 0 0 0 0 0 76 -1 8 22
+s Alice_in_Wonderland_3-U004D "" 0 0 151 4 50 50 0 0 0 0 50 50 0 0 0 0 0 77 -3 5 44
+s Alice_in_Wonderland_3-U004E "" 0 0 285 4 35 49 0 0 0 0 35 49 0 0 0 0 0 78 -1 5 30
+s Alice_in_Wonderland_3-U004F "" 0 0 371 72 29 42 0 0 0 0 29 42 0 0 0 0 0 79 0 9 29
+s Alice_in_Wonderland_3-U0050 "" 0 0 23 4 32 55 0 0 0 0 32 55 0 0 0 0 0 80 -1 0 29
+s Alice_in_Wonderland_3-U0051 "" 0 0 101 4 46 50 0 0 0 0 46 50 0 0 0 0 0 81 0 10 35
+s Alice_in_Wonderland_3-U0052 "" 0 0 378 4 40 47 0 0 0 0 40 47 0 0 0 0 0 82 -2 7 35
+s Alice_in_Wonderland_3-U0053 "" 0 0 931 4 25 45 0 0 0 0 25 45 0 0 0 0 0 83 0 7 25
+s Alice_in_Wonderland_3-U0054 "" 0 0 422 4 29 47 0 0 0 0 29 47 0 0 0 0 0 84 0 8 27
+s Alice_in_Wonderland_3-U0055 "" 0 0 249 72 37 44 0 0 0 0 37 44 0 0 0 0 0 85 -2 11 33
+s Alice_in_Wonderland_3-U0056 "" 0 0 731 4 42 46 0 0 0 0 42 46 0 0 0 0 0 86 -6 6 33
+s Alice_in_Wonderland_3-U0057 "" 0 0 455 4 47 47 0 0 0 0 47 47 0 0 0 0 0 87 -1 5 42
+s Alice_in_Wonderland_3-U0058 "" 0 0 506 4 43 47 0 0 0 0 43 47 0 0 0 0 0 88 -2 7 35
+s Alice_in_Wonderland_3-U0059 "" 0 0 59 4 38 51 0 0 0 0 38 51 0 0 0 0 0 89 -2 7 33
+s Alice_in_Wonderland_3-U005A "" 0 0 473 72 37 42 0 0 0 0 37 42 0 0 0 0 0 90 0 11 35
+s Alice_in_Wonderland_3-U005B "" 0 0 760 121 0 0 0 0 0 0 0 0 0 0 0 0 0 91 0 0 0
+s Alice_in_Wonderland_3-U005C "" 0 0 345 72 22 43 0 0 0 0 22 43 0 0 0 0 0 92 0 8 22
+s Alice_in_Wonderland_3-U005D "" 0 0 776 121 0 0 0 0 0 0 0 0 0 0 0 0 0 93 0 0 0
+s Alice_in_Wonderland_3-U005E "" 0 0 756 121 0 0 0 0 0 0 0 0 0 0 0 0 0 94 0 0 0
+s Alice_in_Wonderland_3-U005F "" 0 0 732 121 20 4 0 0 0 0 20 4 0 0 0 0 0 95 -1 48 19
+s Alice_in_Wonderland_3-U0060 "" 0 0 644 121 10 10 0 0 0 0 10 10 0 0 0 0 0 96 9 9 30
+s Alice_in_Wonderland_3-U0061 "" 0 0 413 121 19 25 0 0 0 0 19 25 0 0 0 0 0 97 0 19 19
+s Alice_in_Wonderland_3-U0062 "" 0 0 77 121 23 28 0 0 0 0 23 28 0 0 0 0 0 98 -2 15 21
+s Alice_in_Wonderland_3-U0063 "" 0 0 392 121 17 26 0 0 0 0 17 26 0 0 0 0 0 99 0 19 17
+s Alice_in_Wonderland_3-U0064 "" 0 0 994 72 24 28 0 0 0 0 24 28 0 0 0 0 0 100 -3 17 21
+s Alice_in_Wonderland_3-U0065 "" 0 0 436 121 20 25 0 0 0 0 20 25 0 0 0 0 0 101 0 18 20
+s Alice_in_Wonderland_3-U0066 "" 0 0 873 72 19 32 0 0 0 0 19 32 0 0 0 0 0 102 -1 18 18
+s Alice_in_Wonderland_3-U0067 "" 0 0 504 121 24 24 0 0 0 0 24 24 0 0 0 0 0 103 0 20 24
+s Alice_in_Wonderland_3-U0068 "" 0 0 964 72 26 30 0 0 0 0 26 30 0 0 0 0 0 104 -2 16 21
+s Alice_in_Wonderland_3-U0069 "" 0 0 487 121 13 25 0 0 0 0 13 25 0 0 0 0 0 105 0 20 13
+s Alice_in_Wonderland_3-U006A "" 0 0 822 72 21 34 0 0 0 0 21 34 0 0 0 0 0 106 -5 20 17
+s Alice_in_Wonderland_3-U006B "" 0 0 896 72 27 31 0 0 0 0 27 31 0 0 0 0 0 107 1 18 24
+s Alice_in_Wonderland_3-U006C "" 0 0 242 121 16 26 0 0 0 0 16 26 0 0 0 0 0 108 1 19 17
+s Alice_in_Wonderland_3-U006D "" 0 0 124 121 28 27 0 0 0 0 28 27 0 0 0 0 0 109 -1 19 26
+s Alice_in_Wonderland_3-U006E "" 0 0 16 121 25 28 0 0 0 0 25 28 0 0 0 0 0 110 0 17 24
+s Alice_in_Wonderland_3-U006F "" 0 0 285 121 18 26 0 0 0 0 18 26 0 0 0 0 0 111 0 18 18
+s Alice_in_Wonderland_3-U0070 "" 0 0 369 121 19 26 0 0 0 0 19 26 0 0 0 0 0 112 0 19 19
+s Alice_in_Wonderland_3-U0071 "" 0 0 156 121 26 27 0 0 0 0 26 27 0 0 0 0 0 113 0 19 21
+s Alice_in_Wonderland_3-U0072 "" 0 0 213 121 25 26 0 0 0 0 25 26 0 0 0 0 0 114 -1 19 21
+s Alice_in_Wonderland_3-U0073 "" 0 0 104 121 16 27 0 0 0 0 16 27 0 0 0 0 0 115 0 18 16
+s Alice_in_Wonderland_3-U0074 "" 0 0 262 121 19 26 0 0 0 0 19 26 0 0 0 0 0 116 1 19 20
+s Alice_in_Wonderland_3-U0075 "" 0 0 460 121 23 25 0 0 0 0 23 25 0 0 0 0 0 117 0 19 22
+s Alice_in_Wonderland_3-U0076 "" 0 0 45 121 28 28 0 0 0 0 28 28 0 0 0 0 0 118 -4 18 22
+s Alice_in_Wonderland_3-U0077 "" 0 0 307 121 27 26 0 0 0 0 27 26 0 0 0 0 0 119 0 19 26
+s Alice_in_Wonderland_3-U0078 "" 0 0 338 121 27 26 0 0 0 0 27 26 0 0 0 0 0 120 -1 19 25
+s Alice_in_Wonderland_3-U0079 "" 0 0 751 72 36 38 0 0 0 0 36 38 0 0 0 0 0 121 -9 17 25
+s Alice_in_Wonderland_3-U007A "" 0 0 186 121 23 27 0 0 0 0 23 27 0 0 0 0 0 122 0 20 20
+s Alice_in_Wonderland_3-U007B "" 0 0 764 121 0 0 0 0 0 0 0 0 0 0 0 0 0 123 0 0 0
+s Alice_in_Wonderland_3-U007C "" 0 0 768 121 0 0 0 0 0 0 0 0 0 0 0 0 0 124 0 0 0
+s Alice_in_Wonderland_3-U007D "" 0 0 772 121 0 0 0 0 0 0 0 0 0 0 0 0 0 125 0 0 0
+s Alice_in_Wonderland_3-U007E "" 0 0 658 121 26 9 0 0 0 0 26 9 0 0 0 0 0 126 2 25 30
