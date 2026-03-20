@@ -38,7 +38,7 @@ public:
 
 	bool IsPersistance() override 
 	{
-		return false;
+		return true;
 	};
 
 	void AddListener(EventType type, EventListener* listener);

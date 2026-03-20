@@ -14,8 +14,8 @@ DXC = C:\VulkanSDK\1.4.341.1\Bin\dxc.exe
 
 DEFINES = -DSD_DEBUG=1 \
 		  -DSD_WIN32=1 \
-		  -DSD_D3D11=0 \
-		  -DSD_VULKAN=1
+		  -DSD_D3D11=1 \
+		  -DSD_VULKAN=0
 
 SRCS  = $(SRC)/main.cpp \
 		$(SRC)/WizardEngine.cpp \
@@ -43,7 +43,8 @@ SRCS  = $(SRC)/main.cpp \
 		$(SRC)/ServiceProvider.cpp \
 		$(SRC)/spirv_reflect.cpp \
 		$(SRC)/Model.cpp \
-		$(SRC)/TextRenderer.cpp
+		$(SRC)/TextRenderer.cpp \
+		$(SRC)/Input.cpp
 
 SHADERS = $(SHADER)/Vertex.hlsl \
 	      $(SHADER)/Vertex2D.hlsl \

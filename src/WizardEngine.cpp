@@ -1,4 +1,5 @@
 #include "WizardEngine.h"
+#include "Input.h"
 
 WizardEngine::WizardEngine(const Config& config)
 	: StardustEngine(config)
@@ -55,10 +56,13 @@ void WizardEngine::OnTick(float deltaTime)
 	}
 
 	static float angle = 0;
-	angle += deltaTime;
-	if(angle >= SD_PI*2.0f)
+	if(GetInput()->KeyDown(KEY_W))
 	{
-		angle -= SD_PI*2.0f;
+		angle += deltaTime;
+		if(angle >= SD_PI*2.0f)
+		{
+			angle -= SD_PI*2.0f;
+		}
 	}
 
 	mRenderer->BeginFrame(0.2f, 0.2f, 0.4f);

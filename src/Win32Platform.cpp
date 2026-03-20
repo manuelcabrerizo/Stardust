@@ -1,7 +1,10 @@
 #include "Win32Platform.h"
+#include <Windowsx.h>
+
 #include "Config.h"
 
 #include "ServiceProvider.h"
+#include "Input.h"
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_win32.h>
@@ -124,6 +127,30 @@ LRESULT Win32Platform::MsgProc(HWND window, UINT message, WPARAM wParam, LPARAM 
             ((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
             ((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;  
         } break;
+        case WM_KEYDOWN:
+        case WM_KEYUP:
+        {
+            DWORD keyCode = (DWORD)wParam;
+            bool isDown = ((lParam & (1u << 31)) == 0);
+            GetInput()->SetKey(keyCode, isDown);
+        } break;
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+        case WM_MBUTTONDOWN:
+        case WM_MBUTTONUP:
+        {
+            GetInput()->SetMouseButton(MOUSE_BUTTON_LEFT, (wParam & MK_LBUTTON) != 0); 
+            GetInput()->SetMouseButton(MOUSE_BUTTON_MIDDLE, (wParam & MK_MBUTTON) != 0); 
+            GetInput()->SetMouseButton(MOUSE_BUTTON_RIGHT, (wParam & MK_RBUTTON) != 0); 
+        } break;
+        case WM_MOUSEMOVE:
+        {
+            int mouseX = (int)GET_X_LPARAM(lParam);
+            int mouseY = (int)GET_Y_LPARAM(lParam);
+            GetInput()->SetMousePosition(mouseX, mouseY);
+        } break; 
         default:
         {
             result = DefWindowProc(window, message, wParam, lParam);
