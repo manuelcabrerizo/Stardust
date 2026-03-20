@@ -184,7 +184,7 @@ void D3D11Renderer::BeginFrame(float r, float g, float b)
 void D3D11Renderer::EndFrame()
 {
 	EndRenderingSession();
-	mSwapChain->Present(0, 0);
+	mSwapChain->Present(1, 0);
 }
 
 void D3D11Renderer::BeginRenderingSession()

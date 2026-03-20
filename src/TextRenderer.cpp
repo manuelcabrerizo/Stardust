@@ -58,6 +58,7 @@ void TextRenderer::DrawString(const char* text, const Vector3& position, float s
 		letterSprite.Scale = Vector3(sprite.SourceWidth * size, sprite.SourceHeight * size, 1);
 		letterSprite.Rotation = Matrix4x4::Identity;
 		letterSprite.Uvs = Vector4(endX, 1-endY, startX, 1-startY);
+		letterSprite.Color = color;
 		mLetters.push_back(letterSprite);
 
 		cursorX += static_cast<float>(sprite.CharAdvanceX) * size;

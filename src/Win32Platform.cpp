@@ -103,6 +103,10 @@ LRESULT Win32Platform::MsgProc(HWND window, UINT message, WPARAM wParam, LPARAM 
             {
                 mIsPaused = true;
             }
+            if(wParam == SIZE_MAXIMIZED)
+            {
+                mIsPaused = false;
+            }
             if(wParam == SIZE_RESTORED)
             {
                 mIsPaused = false;

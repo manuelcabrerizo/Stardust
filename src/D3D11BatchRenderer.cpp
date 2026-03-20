@@ -62,7 +62,7 @@ void D3D11BatchRenderer::DrawSprites(Sprite* sprites, int count)
 			d3dSprite.Vertices[i].Position.Z = gSprite.Vertices[i].Position.Z;
 			d3dSprite.Vertices[i].Position = Matrix4x4::TransformPoint(sprite->Rotation, d3dSprite.Vertices[i].Position);
 			d3dSprite.Vertices[i].Position += sprite->Position;
-			d3dSprite.Vertices[i].Normal = gSprite.Vertices[i].Normal;
+			d3dSprite.Vertices[i].Color = sprite->Color;
 			d3dSprite.Vertices[i].TCoord = uvsArray[i];
 		}
 		mCpuBuffer.push_back(d3dSprite);

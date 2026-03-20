@@ -84,9 +84,9 @@ void WizardEngine::OnTick(float deltaTime)
 	char buffer[256];
 	sprintf(buffer, "FPS: %d", mFPS);
 	Vector3 origin = Vector3(-mWindowWidth*0.5f, mWindowHeight*0.5f - 64, 0);
-	mText->DrawString(buffer, origin, 1, Vector3::ZeroVector);
-	mText->DrawString("Hello Sailor!", origin + Vector3(0.0f, -64.0f, 0.0f), 1, Vector3::ZeroVector);
-	mText->DrawString("This is Wow Killer!", origin + Vector3(0.0f, -128.0f, 0.0f), 1, Vector3::ZeroVector);
+	mText->DrawString(buffer, origin, 1, Vector3(1,0,0));
+	mText->DrawString("Hello Sailor!", origin + Vector3(0.0f, -64.0f, 0.0f), 1, Vector3(0,1,0));
+	mText->DrawString("This is Wow Killer!", origin + Vector3(0.0f, -128.0f, 0.0f), 1, Vector3(1,1,0));
 	mText->Present(mRenderer);
 
 

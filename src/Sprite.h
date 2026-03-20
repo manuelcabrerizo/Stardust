@@ -11,6 +11,7 @@ struct Sprite
 	Vector3 Scale;
 	Matrix4x4 Rotation;
 	Vector4 Uvs;
+	Vector3 Color;
 };
 
 #endif

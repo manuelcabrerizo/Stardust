@@ -9,7 +9,7 @@ class Renderer;
 struct QuadVertex
 {
 	Vector3 Position;
-	Vector3 Normal;
+	Vector3 Color;
 	Vector2 TCoord;
 };
 

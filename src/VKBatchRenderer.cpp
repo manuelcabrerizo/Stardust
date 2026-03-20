@@ -69,7 +69,7 @@ void VKBatchRenderer::DrawSprites(Sprite* sprites, int count)
 			vkSprite.Vertices[i].Position.Z = gSprite.Vertices[i].Position.Z;
 			vkSprite.Vertices[i].Position = Matrix4x4::TransformPoint(sprite->Rotation, vkSprite.Vertices[i].Position);
 			vkSprite.Vertices[i].Position += sprite->Position;
-			vkSprite.Vertices[i].Normal = gSprite.Vertices[i].Normal;
+			vkSprite.Vertices[i].Color = sprite->Color;
 			vkSprite.Vertices[i].TCoord = uvsArray[i];
 		}
 		mCpuBuffers[frameIndex].push_back(vkSprite);
