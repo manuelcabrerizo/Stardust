@@ -29,6 +29,7 @@ private:
 	VkDevice mDevice;
 	std::array<VkBuffer, MAX_FRAMES_IN_FLIGHT> mGpuBuffers;
 	std::array<VkDeviceMemory, MAX_FRAMES_IN_FLIGHT> mGpuBufferMemorys;
+	std::array<void *, MAX_FRAMES_IN_FLIGHT> mGpuBufferMappedMemorys;
     std::array<std::vector<VKSprite>, MAX_FRAMES_IN_FLIGHT> mCpuBuffers;
 	std::array<int, MAX_FRAMES_IN_FLIGHT> mMaxSpriteCount;
 };

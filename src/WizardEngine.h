@@ -7,9 +7,6 @@
 
 #include "TextRenderer.h"
 #include "GraphicPipeline.h"
-#include "VertexBuffer.h"
-#include "Texture2D.h"
-
 #include "Model.h"
 
 #include "math/Matrix4x4.h"
@@ -31,9 +28,6 @@ private:
 
 	GraphicPipeline* m3DGraphicPipeline;
 	GraphicPipeline* m2DGraphicPipeline;
-	VertexBuffer* mVertexBuffer;
-	Texture2D* mTexture0;
-	Texture2D* mTexture1;
 
 	Matrix4x4 mView;
 	Matrix4x4 mPerspective;
@@ -44,6 +38,8 @@ private:
 
 	int mFPS;
 	int mFrameCounter;
+	float mWindowWidth;
+	float mWindowHeight;
 };
 
 #endif
