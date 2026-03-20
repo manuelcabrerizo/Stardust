@@ -76,10 +76,7 @@ void VKBatchRenderer::DrawSprites(Sprite* sprites, int count)
 	}
 
 	VkDeviceSize size = sizeof(VKSprite) * mMaxSpriteCount[frameIndex];
-	//void* data;
-	//vkMapMemory(mDevice, mGpuBufferMemorys[frameIndex], 0, size, 0, &data);
     memcpy(mGpuBufferMappedMemorys[frameIndex], mCpuBuffers[frameIndex].data(), size);
-	//vkUnmapMemory(mDevice, mGpuBufferMemorys[frameIndex]);
 
 	VkBuffer vertexBuffers[] = {mGpuBuffers[frameIndex]};
 	VkDeviceSize offsets[] = {0};

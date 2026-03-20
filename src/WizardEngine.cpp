@@ -54,6 +54,13 @@ void WizardEngine::OnTick(float deltaTime)
 		time -= 1.0f;
 	}
 
+	static float angle = 0;
+	angle += deltaTime;
+	if(angle >= SD_PI*2.0f)
+	{
+		angle -= SD_PI*2.0f;
+	}
+
 	mRenderer->BeginFrame(0.2f, 0.2f, 0.4f);
 
 	mRenderer->SetPerFrameVariable<Matrix4x4>("View", mView);
@@ -65,13 +72,11 @@ void WizardEngine::OnTick(float deltaTime)
 	// 3D Rendering
 	mRenderer->PushGraphicPipeline(m3DGraphicPipeline);
 
-	for(int i = 0; i < 500; i++)
-	{
-		mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::RotateX(-SD_PI*0.5f) * Matrix4x4::Translate(i * 0.5f,  -0.25f, 0.0f));
-		mRenderer->SetPerDrawVariable<Vector3>("Tint", Vector3{1.0f, 1.0f, 1.0f});
-		mRenderer->PushPerDrawVariables();
-		mModel->Draw(mRenderer);
-	}
+	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::RotateX(-SD_PI*0.5f) * Matrix4x4::RotateY(angle) * Matrix4x4::Translate(0.0f,  -0.25f, 0.0f));
+	mRenderer->SetPerDrawVariable<Vector3>("Tint", Vector3{1.0f, 1.0f, 1.0f});
+	mRenderer->PushPerDrawVariables();
+	mModel->Draw(mRenderer);
+	
 
 	// 2D Batch Rendering
 	mRenderer->PushGraphicPipeline(m2DGraphicPipeline);
@@ -83,6 +88,7 @@ void WizardEngine::OnTick(float deltaTime)
 	mText->DrawString("Hello Sailor!", origin + Vector3(0.0f, -64.0f, 0.0f), 1, Vector3::ZeroVector);
 	mText->DrawString("This is Wow Killer!", origin + Vector3(0.0f, -128.0f, 0.0f), 1, Vector3::ZeroVector);
 	mText->Present(mRenderer);
+
 
 	mRenderer->EndFrame();
 }
