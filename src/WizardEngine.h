@@ -5,7 +5,7 @@
 
 #include "EventBus.h"
 
-#include "BatchRenderer.h"
+#include "TextRenderer.h"
 #include "GraphicPipeline.h"
 #include "VertexBuffer.h"
 #include "Texture2D.h"
@@ -40,7 +40,10 @@ private:
 	Matrix4x4 mOrthographic;
 
 	Model* mModel;
-	BatchRenderer* mBatch;
+	TextRenderer* mText;
+
+	int mFPS;
+	int mFrameCounter;
 };
 
 #endif

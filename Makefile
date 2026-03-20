@@ -1,5 +1,5 @@
 APP     = Stardust
-CCFLAGS = -std=c++17 -g -Wall -pedantic -Wno-language-extension-token -Wno-gnu-anonymous-struct -Wno-nested-anon-types
+CCFLAGS = -std=c++17 -g -O0 -Wall -pedantic -Wno-language-extension-token -Wno-gnu-anonymous-struct -Wno-nested-anon-types
 CFALGS  = $(CCFLAGS)
 CC      = clang++
 C       = clang
@@ -42,7 +42,8 @@ SRCS  = $(SRC)/main.cpp \
 		$(SRC)/EventBus.cpp \
 		$(SRC)/ServiceProvider.cpp \
 		$(SRC)/spirv_reflect.cpp \
-		$(SRC)/Model.cpp
+		$(SRC)/Model.cpp \
+		$(SRC)/TextRenderer.cpp
 
 SHADERS = $(SHADER)/Vertex.hlsl \
 	      $(SHADER)/Vertex2D.hlsl \

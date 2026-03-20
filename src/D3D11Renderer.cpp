@@ -86,6 +86,7 @@ D3D11Renderer::D3D11Renderer(const Config& config, Platform* platform)
 	CreateDepthStencilView(config);
 	CreateGlobalConstBuffer();
 	CreateSamplerStates();
+	CreateBlendStates();
 
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
@@ -110,6 +111,8 @@ D3D11Renderer::~D3D11Renderer()
 	{
 		delete mPerDraw;
 	}
+
+	mAlphaBlendOn->Release();
 
 	mLinearClampSamplerState->Release();
 	mLinearWrapSamplerState->Release();
@@ -181,7 +184,7 @@ void D3D11Renderer::BeginFrame(float r, float g, float b)
 void D3D11Renderer::EndFrame()
 {
 	EndRenderingSession();
-	mSwapChain->Present(1, 0);
+	mSwapChain->Present(0, 0);
 }
 
 void D3D11Renderer::BeginRenderingSession()
@@ -757,6 +760,23 @@ bool D3D11Renderer::CreateSamplerStates()
      mDeviceContext->PSSetSamplers(2, 1, &mPointClampSamplerState);
      mDeviceContext->PSSetSamplers(3, 1, &mPointWrapSamplerState);
 	return true;
+}
+
+void D3D11Renderer::CreateBlendStates()
+{
+	D3D11_BLEND_DESC blendStateDesc = {};
+	blendStateDesc.RenderTarget[0].BlendEnable = true;
+	blendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	mDevice->CreateBlendState(&blendStateDesc, &mAlphaBlendOn);
+
+    mDeviceContext->OMSetBlendState(mAlphaBlendOn, 0, 0xffffffff);
+
 }
 
 void D3D11Renderer::LoadPerFrameConstBuffer(ID3D11ShaderReflection* reflection, const D3D11_SHADER_DESC& desc, ConstBufferBindStage bindStage)

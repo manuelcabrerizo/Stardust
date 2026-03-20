@@ -20,6 +20,8 @@ VertexQuad vertices[] =
 WizardEngine::WizardEngine(const Config& config)
 	: StardustEngine(config)
 {
+	mFPS = 0;
+	mFrameCounter = 0;
 }
 
 void WizardEngine::OnInit()
@@ -36,14 +38,13 @@ void WizardEngine::OnInit()
 	const char* pixelShaderFilepath = "assets/shaders/frag.spv";
 #endif
 
-	mBatch = BatchRenderer::Create(mRenderer, 20);
-
 	m3DGraphicPipeline = new GraphicPipeline(vertexShaderFilepath, pixelShaderFilepath);
 	m2DGraphicPipeline = new GraphicPipeline(vertex2DShaderFilepath, pixelShaderFilepath);
 	mModel = new Model("assets/models/viking_room.obj", "assets/textures/viking_room.png");
 	mVertexBuffer = new VertexBuffer(vertices, 6, sizeof(VertexQuad));
 	mTexture0 = new Texture2D("assets/textures/tiles_floor_5.png", false);
 	mTexture1 = new Texture2D("assets/textures/tiles_floor_5_normal.png", false);
+	mText = new TextRenderer(mRenderer, "assets/fonts/atlas.rtpa");
 
 	float windowWidth = 1280.0f;
 	float windowHeight = 720.0f;
@@ -68,12 +69,15 @@ void WizardEngine::OnTick(float deltaTime)
 {
 	static float time = 0;
 	time += deltaTime;
-	static float angle = 0;
-	angle += deltaTime;
-	if(angle > (SD_PI * 2.0f))
+
+	mFrameCounter++;
+	if(time >= 1.0f)
 	{
-		angle -= SD_PI * 2.0f;
+		mFPS = mFrameCounter;
+		mFrameCounter = 0;
+		time -= 1.0f;
 	}
+
 
 	mRenderer->BeginFrame(0.2f, 0.2f, 0.4f);
 
@@ -86,7 +90,7 @@ void WizardEngine::OnTick(float deltaTime)
 	mRenderer->SetPerFrameVariable<float>("Time", 69.0f);
 	mRenderer->PushPerFrameVariables();
 
-	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::RotateX(-SD_PI*0.5f) * Matrix4x4::RotateY(angle) * Matrix4x4::Translate(0.0f,  -0.25f, 0.0f));
+	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::RotateX(-SD_PI*0.5f) * Matrix4x4::Translate(0.0f,  -0.25f, 0.0f));
 	mRenderer->SetPerDrawVariable<Vector3>("Tint", Vector3{1.0f, 1.0f, 1.0f});
 	mRenderer->PushPerDrawVariables();
 	mModel->Draw(mRenderer);
@@ -97,39 +101,30 @@ void WizardEngine::OnTick(float deltaTime)
 	mRenderer->SetPerDrawVariable<Matrix4x4>("World", Matrix4x4::Identity);
 	mRenderer->SetPerDrawVariable<Vector3>("Tint", Vector3{1.0f, 1.0f, 1.0f});
 	mRenderer->PushPerDrawVariables();
-	mRenderer->PushTexture(mTexture0, 0);
 
-	int spriteCount = 10;
-	if(time > 3)
-	{
-		spriteCount = 100;
-	}
+	
+	char buffer[256];
+	sprintf(buffer, "FPS: %d", mFPS);
+	mText->DrawString(buffer, Vector3(0.0f, 0.0f, 0.0f), 1, Vector3::ZeroVector);
+	
 
-	std::vector<Sprite> sprites(spriteCount);
-	for(int i = 0; i < spriteCount; i++)
-	{
-		Sprite sprite;
-		sprite.Position = Vector3((-1280.0f*0.5f) + 100 + i * 50.0f, sinf((angle*4.0f) + i) * 75.0f, 0.0f);
-		sprite.Scale = Vector3(100.0f, 100.0f, 1.0f);
-		sprite.Rotation = i % 2 == 0 ? Matrix4x4::RotateZ(-angle*2.0f) : Matrix4x4::RotateZ(angle*2.0f);
-		sprite.Uvs = i % 2 == 0 ? Vector4(0.0f, 0.0f, 0.25f, 0.25f) : Vector4(0.0f, 0.0f, 0.5f, 0.5f);
-		sprites[i] = sprite;
-	}
-	mBatch->DrawSprites(sprites.data(), spriteCount);
+	mText->DrawString("Hello Sailor!", Vector3(0.0f, -64.0f, 0.0f), 1, Vector3::ZeroVector);
+	mText->DrawString("This is Wow Killer!", Vector3(0.0f, -128.0f, 0.0f), 1, Vector3::ZeroVector);
+
+	mText->Present(mRenderer);
 
 	mRenderer->EndFrame();
 }
 
 void WizardEngine::OnDestroy()
 {
+	delete mText;
 	delete mTexture1;
 	delete mTexture0;
 	delete mVertexBuffer;
 	delete mModel;
 	delete m2DGraphicPipeline;
 	delete m3DGraphicPipeline;
-
-	delete mBatch;
 
 	GetEventBus()->RemoveListener(EventType::WindowResizeEvent, this);
 }

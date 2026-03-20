@@ -101,6 +101,7 @@ private:
 	bool CreateDepthStencilView(const Config& config);
 	bool CreateGlobalConstBuffer();
 	bool CreateSamplerStates();
+	void CreateBlendStates();
 	void LoadPerFrameConstBuffer(ID3D11ShaderReflection* reflection, const D3D11_SHADER_DESC& desc, ConstBufferBindStage bindStage);
 	void LoadPerDrawConstBuffer(ID3D11ShaderReflection* reflection, const D3D11_SHADER_DESC& desc, ConstBufferBindStage bindStage);
 	void BeginRenderingSession();
@@ -130,6 +131,9 @@ private:
 	ID3D11SamplerState* mLinearWrapSamplerState;
 	ID3D11SamplerState* mPointClampSamplerState;
 	ID3D11SamplerState* mPointWrapSamplerState;
+
+	// Blend State 
+	ID3D11BlendState *mAlphaBlendOn;
 };
 
 class ConstBufferMapException : public std::exception
