@@ -60,7 +60,7 @@ void Input::Process()
 
 void Input::SetKey(unsigned int key, bool value)
 {
-	mKeys[CURRENT_STATE][key] = value; 
+	mKeys[CURRENT_STATE][key] = value;
 }
 
 void Input::SetMouseButton(unsigned int button, bool value)

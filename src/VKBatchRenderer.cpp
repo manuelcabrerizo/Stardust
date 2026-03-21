@@ -92,16 +92,12 @@ void VKBatchRenderer::AllocBuffers(unsigned int frameIndex)
 						  size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 						  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 						  mGpuBuffers[frameIndex], mGpuBufferMemorys[frameIndex]);
-
 	vkMapMemory(mDevice, mGpuBufferMemorys[frameIndex], 0, size, 0, &mGpuBufferMappedMemorys[frameIndex]);
 }
 
 void VKBatchRenderer::FreeBuffers(unsigned int frameIndex)
 {
-	//vkDeviceWaitIdle(mDevice);
-
 	vkUnmapMemory(mDevice, mGpuBufferMemorys[frameIndex]);
-
 	vkDestroyBuffer(mDevice, mGpuBuffers[frameIndex], nullptr);
 	vkFreeMemory(mDevice, mGpuBufferMemorys[frameIndex], nullptr);
 	mCpuBuffers[frameIndex].clear();

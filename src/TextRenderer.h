@@ -39,8 +39,10 @@ struct FontSpriteInfo
 class TextRenderer
 {
 public:
-	TextRenderer(Renderer* renderer, const char* fontFile);
+	TextRenderer(const char* fontFile);
 	~TextRenderer();
+	void Load(Renderer* renderer);
+	void Release(Renderer* renderer);
 	void DrawString(const char* text, const Vector3& position, float fontSize, const Vector3& color);
 	void Present(Renderer* renderer);
 private:

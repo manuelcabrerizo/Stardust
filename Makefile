@@ -14,8 +14,8 @@ DXC = C:\VulkanSDK\1.4.341.1\Bin\dxc.exe
 
 DEFINES = -DSD_DEBUG=1 \
 		  -DSD_WIN32=1 \
-		  -DSD_D3D11=1 \
-		  -DSD_VULKAN=0
+		  -DSD_D3D11=0 \
+		  -DSD_VULKAN=1
 
 SRCS  = $(SRC)/main.cpp \
 		$(SRC)/WizardEngine.cpp \

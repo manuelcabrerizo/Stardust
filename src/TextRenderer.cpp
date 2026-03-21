@@ -11,21 +11,34 @@
 
 const int INITIAL_SPRITE_COUNT = 100;
 
-TextRenderer::TextRenderer(Renderer* renderer, const char* fontFile)
+TextRenderer::TextRenderer(const char* fontFile)
 {
-	mBatch = BatchRenderer::Create(renderer, INITIAL_SPRITE_COUNT);
 	LoadFontInfo(fontFile);
 	std::string fontFilePath(fontFile);
 	size_t prevIndex = fontFilePath.find_last_of('/');
 	std::string atlasFilePath = fontFilePath.substr(0, prevIndex + 1) + mInfo.ImagePath;
 	mAtlas = new Texture2D(atlasFilePath.c_str(), false);
-	renderer->LoadTexture2D(mAtlas);
 }
 
 TextRenderer::~TextRenderer()
 {
 	mSprites.clear();
 	delete mAtlas;
+	if(mBatch)
+	{
+		delete mBatch;
+	}
+}
+
+void TextRenderer::Load(Renderer* renderer)
+{
+	mBatch = BatchRenderer::Create(renderer, INITIAL_SPRITE_COUNT);
+	renderer->LoadTexture2D(mAtlas);
+}
+
+void TextRenderer::Release(Renderer* renderer)
+{
+	renderer->ReleaseTexture2D(mAtlas);
 	delete mBatch;
 }
 

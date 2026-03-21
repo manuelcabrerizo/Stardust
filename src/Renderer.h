@@ -17,6 +17,13 @@ struct Sprite;
 #include <string>
 #include <cassert>
 
+
+#if SD_D3D11
+#define SH_EXT ".dxbc"
+#elif SD_VULKAN
+#define SH_EXT ".spv"
+#endif
+
 class Renderer 
 {
 public:

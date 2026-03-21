@@ -12,20 +12,10 @@ void WizardEngine::OnInit()
 {
 	GetEventBus()->AddListener(EventType::WindowResizeEvent, this);
 
-#if SD_D3D11
-	const char* vertexShaderFilepath = "assets/shaders/vert.dxbc";
-	const char* vertex2DShaderFilepath = "assets/shaders/vert2d.dxbc";
-	const char* pixelShaderFilepath = "assets/shaders/frag.dxbc";
-#elif SD_VULKAN
-	const char* vertexShaderFilepath = "assets/shaders/vert.spv";
-	const char* vertex2DShaderFilepath = "assets/shaders/vert2d.spv";
-	const char* pixelShaderFilepath = "assets/shaders/frag.spv";
-#endif
-
-	m3DGraphicPipeline = new GraphicPipeline(vertexShaderFilepath, pixelShaderFilepath);
-	m2DGraphicPipeline = new GraphicPipeline(vertex2DShaderFilepath, pixelShaderFilepath);
+	m3DGraphicPipeline = new GraphicPipeline("assets/shaders/vert" SH_EXT, "assets/shaders/frag" SH_EXT);
+	m2DGraphicPipeline = new GraphicPipeline("assets/shaders/vert2d" SH_EXT, "assets/shaders/frag" SH_EXT);
 	mModel = new Model("assets/models/viking_room.obj", "assets/textures/viking_room.png");
-	mText = new TextRenderer(mRenderer, "assets/fonts/atlas.rtpa");
+	mText = new TextRenderer("assets/fonts/atlas.rtpa");
 
 	mWindowWidth = 1280.0f;
 	mWindowHeight = 720.0f;
@@ -40,6 +30,7 @@ void WizardEngine::OnLateInit()
 	mRenderer->LoadGraphicPipeline(m3DGraphicPipeline);
 	mRenderer->LoadGraphicPipeline(m2DGraphicPipeline);
 	mModel->Load(mRenderer);
+	mText->Load(mRenderer);
 }
 
 void WizardEngine::OnTick(float deltaTime)
@@ -81,7 +72,6 @@ void WizardEngine::OnTick(float deltaTime)
 	mRenderer->PushPerDrawVariables();
 	mModel->Draw(mRenderer);
 	
-
 	// 2D Batch Rendering
 	mRenderer->PushGraphicPipeline(m2DGraphicPipeline);
 
@@ -92,7 +82,6 @@ void WizardEngine::OnTick(float deltaTime)
 	mText->DrawString("Hello Sailor!", origin + Vector3(0.0f, -64.0f, 0.0f), 1, Vector3(0,1,0));
 	mText->DrawString("This is Wow Killer!", origin + Vector3(0.0f, -128.0f, 0.0f), 1, Vector3(1,1,0));
 	mText->Present(mRenderer);
-
 
 	mRenderer->EndFrame();
 }

@@ -29,7 +29,6 @@ void StardustEngine::Run()
 	OnLateInit();
 
 	double lastTime = mPlatform->GetTime();
-
 	while(!mPlatform->ShouldClose())
 	{
 		double currentTime = mPlatform->GetTime();
