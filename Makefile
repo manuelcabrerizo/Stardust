@@ -5,12 +5,9 @@ CC      = clang++
 C       = clang
 MKDIR   = mkdir
 SRC     = src
-OBJ     = obj
 INCL_PATH = -isystem "$(VULKAN_SDK)/Include" -Iinclude -Iinclude/math -Ivendor/stb_image
 LIBS_PATH = -L"$(VULKAN_SDK)/Lib"
 LIBS    = -luser32 -ld3d11 -ld3dcompiler -ldxguid -lvulkan-1
-SHADER  = assets/shaders
-DXC = C:\VulkanSDK\1.4.341.1\Bin\dxc.exe
 
 DEFINES =     -DSD_EXPORT  \
               -DSD_DEBUG=1 \
@@ -45,18 +42,6 @@ SRCS  =       $(SRC)/StardustEngine.cpp \
               $(SRC)/TextRenderer.cpp \
               $(SRC)/Input.cpp
 
-SHADERS =     $(SHADER)/Vertex.hlsl \
-              $(SHADER)/Vertex2D.hlsl \
-              $(SHADER)/Pixel.hlsl
-
 $(APP) : $(SRCS)
        if not exist lib mkdir lib
        $(CC) $(SRCS) -o lib/$(APP).dll $(CCFLAGS) $(DEFINES) $(INCL_PATH) $(LIBS_PATH) $(LIBS)
-
-sh : $(SHADERS)
-       fxc -O3 -T vs_5_0 -E main -Fo $(SHADER)/vert.dxbc $(SHADER)/Vertex.hlsl
-       fxc -O3 -T vs_5_0 -E main -Fo $(SHADER)/vert2d.dxbc $(SHADER)/Vertex2D.hlsl
-       fxc -O3 -T ps_5_0 -E main -Fo $(SHADER)/frag.dxbc $(SHADER)/Pixel.hlsl
-       $(DXC) -spirv -T vs_6_0 -E main -DSPIRV -fspv-target-env=vulkan1.0 -Fo $(SHADER)/vert.spv $(SHADER)/Vertex.hlsl
-       $(DXC) -spirv -T vs_6_0 -E main -DSPIRV -fspv-target-env=vulkan1.0 -Fo $(SHADER)/vert2d.spv $(SHADER)/Vertex2D.hlsl
-       $(DXC) -spirv -T ps_6_0 -E main -DSPIRV -fspv-target-env=vulkan1.0 -Fo $(SHADER)/frag.spv $(SHADER)/Pixel.hlsl
