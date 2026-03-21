@@ -1,10 +1,12 @@
 #ifndef VECTOR3_H
 #define VECTOR3_H
 
+#include "Common.h"
+
 struct Vector2;
 struct Vector4;
 
-struct Vector3
+struct SD_API Vector3
 {
 	union
 	{

@@ -11,20 +11,15 @@ class IndexBuffer;
 class Texture2D;
 struct Sprite;
 
+#include "Common.h"
+
 #include "math/Vector3.h"
 #include "ConstBuffer.h"
 
 #include <string>
 #include <cassert>
 
-
-#if SD_D3D11
-#define SH_EXT ".dxbc"
-#elif SD_VULKAN
-#define SH_EXT ".spv"
-#endif
-
-class Renderer 
+class SD_API Renderer 
 {
 public:
 	virtual ~Renderer() {}

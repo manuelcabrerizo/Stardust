@@ -1,6 +1,7 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include "Common.h"
 #include "ServiceProvider.h"
 
 const unsigned int CURRENT_STATE = 0;
@@ -72,7 +73,7 @@ const unsigned int MOUSE_BUTTON_LEFT = 0;
 const unsigned int MOUSE_BUTTON_MIDDLE = 1;
 const unsigned int MOUSE_BUTTON_RIGHT = 2;
 
-class Input : public IService<Input>
+class SD_API Input : public IService<Input>
 {
 public:
 	Input() = default;

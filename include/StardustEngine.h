@@ -2,11 +2,12 @@
 #define STARDUST_ENGINE_H
 
 #include "Config.h"
+#include "Common.h"
 
 class Platform;
 class Renderer;
 
-class StardustEngine
+class SD_API StardustEngine
 {
 public:
 	StardustEngine(const Config& config);

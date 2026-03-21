@@ -1,6 +1,7 @@
 #ifndef TEXT_RENDERER_H
 #define TEXT_RENDERER_H
 
+#include "Common.h"
 #include "Sprite.h"
 #include <vector>
 
@@ -36,7 +37,7 @@ struct FontSpriteInfo
     int CharAdvanceX;
 };
 
-class TextRenderer
+class SD_API TextRenderer
 {
 public:
 	TextRenderer(const char* fontFile);

@@ -1,10 +1,12 @@
 #ifndef VECTOR4_H
 #define VECTOR4_H
 
+#include "Common.h"
+
 struct Vector2;
 struct Vector3;
 
-struct alignas(16) Vector4
+struct alignas(16) SD_API Vector4
 {
     union
     {

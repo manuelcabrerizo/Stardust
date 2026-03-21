@@ -1,7 +1,9 @@
 #ifndef VECTOR2_H
 #define VECTOR2_H
 
-struct Vector2
+#include "Common.h"
+
+struct SD_API Vector2
 {
     union
     {

@@ -1,9 +1,10 @@
 #ifndef GRAPHIC_PIPELINE_H
 #define GRAPHIC_PIPELINE_H
 
+#include "Common.h"
 #include "Bindable.h"
 
-class GraphicPipeline : public Bindable
+class SD_API GraphicPipeline : public Bindable
 {
 public:
 	GraphicPipeline(const char* vertexFilePath, const char* pixelFilePath);

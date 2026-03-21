@@ -1,6 +1,7 @@
 #ifndef EVENT_BUS_H
 #define EVENT_BUS_H
 
+#include "Common.h"
 #include "ServiceProvider.h"
 #include <unordered_map>
 #include <vector>
@@ -30,7 +31,7 @@ public:
 	virtual void OnEvent(const Event& event) = 0;
 };
 
-class EventBus : public IService<EventBus>
+class SD_API EventBus : public IService<EventBus>
 {
 public:
 	EventBus();

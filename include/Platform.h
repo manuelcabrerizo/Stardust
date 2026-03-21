@@ -1,11 +1,12 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
+#include "Common.h"
 #include <vulkan/vulkan.h>
 
 struct Config;
 
-class Platform
+class SD_API Platform
 {
 public:
 	virtual ~Platform() {}

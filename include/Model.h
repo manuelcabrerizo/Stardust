@@ -1,6 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include "Common.h"
 #include "math/Vector3.h"
 #include "math/Vector2.h"
 
@@ -16,7 +17,7 @@ struct ModelVertex
 	Vector2 TCoord;
 };
 
-class Model
+class SD_API Model
 {
 public:
 	Model(const char* modelFilepath, const char* textureFilePath);

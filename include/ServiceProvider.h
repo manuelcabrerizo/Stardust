@@ -1,6 +1,7 @@
 #ifndef SERVICE_PROVIDER_H
 #define SERVICE_PROVIDER_H
 
+#include "Common.h"
 #include <cassert>
 #include <unordered_map>
 
@@ -25,7 +26,7 @@ public:
 	}
 };
 
-class ServiceProvider
+class SD_API ServiceProvider
 {
 public:
 	static ServiceProvider* Instance();

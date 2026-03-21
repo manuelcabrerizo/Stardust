@@ -1,10 +1,12 @@
 #ifndef MATRIX_4X4_H
 #define MATRIX_4X4_H
 
+#include "Common.h"
+
 struct Vector3;
 struct Vector4;
 
-struct alignas(16) Matrix4x4
+struct alignas(16) SD_API Matrix4x4
 {
 	alignas(16) float M[4][4];
 
