@@ -1,10 +1,19 @@
 #include "GraphicPipeline.h"
 
+#include <string>
 #include <fstream>
 #include <cassert>
 
-GraphicPipeline::GraphicPipeline(const char* vertexFilePath, const char* pixelFilePath)
+GraphicPipeline::GraphicPipeline(const char* vertexFileName, const char* pixelFileName)
 {
+#if SD_D3D11
+	std::string extension = ".dxbc";
+#elif SD_VULKAN
+	std::string extension = ".spv";
+#endif
+
+	std::string vertexFilePath(vertexFileName);
+	vertexFilePath.append(extension);
 	std::ifstream vertexFile(vertexFilePath, std::ios::ate | std::ios::binary);
 	if(!vertexFile.is_open())
 	{
@@ -16,7 +25,8 @@ GraphicPipeline::GraphicPipeline(const char* vertexFilePath, const char* pixelFi
 	vertexFile.read(mVertexShaderData, static_cast<std::streamsize>(mVertexShaderSize));
 	vertexFile.close();
 
-
+	std::string pixelFilePath(pixelFileName);
+	pixelFilePath.append(extension);
 	std::ifstream pixelFile(pixelFilePath, std::ios::ate | std::ios::binary);
 	if(!pixelFile.is_open())
 	{

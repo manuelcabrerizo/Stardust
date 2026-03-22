@@ -7,7 +7,7 @@
 class SD_API GraphicPipeline : public Bindable
 {
 public:
-	GraphicPipeline(const char* vertexFilePath, const char* pixelFilePath);
+	GraphicPipeline(const char* vertexFileName, const char* pixelFileName);
 	~GraphicPipeline();
 	const char* GetVertexShaderData() const;
 	const size_t GetVertexShaderSize() const;

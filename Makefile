@@ -5,9 +5,9 @@ CC      = clang++
 C       = clang
 MKDIR   = mkdir
 SRC     = src
-INCL_PATH = -isystem "$(VULKAN_SDK)/Include" -Iinclude -Iinclude/math -Ivendor/stb_image
-LIBS_PATH = -L"$(VULKAN_SDK)/Lib"
-LIBS    = -luser32 -ld3d11 -ld3dcompiler -ldxguid -lvulkan-1
+INCL_PATH = -isystem "$(VULKAN_SDK)/Include" -Iinclude -Iinclude/math -Ivendor/stb_image -Ivendor/assimp/include
+LIBS_PATH = -L"$(VULKAN_SDK)/Lib" -Lvendor/assimp/lib/Release
+LIBS    = -luser32 -ld3d11 -ld3dcompiler -ldxguid -lvulkan-1 -lassimp-vc143-mt
 
 DEFINES =     -DSD_EXPORT  \
               -DSD_DEBUG=1 \

@@ -14,7 +14,7 @@ class Platform;
 struct SpvReflectShaderModule;
 
 const bool ENABLE_VALIDATION_LAYERS = true;
-const int MAX_FRAMES_IN_FLIGHT = 2;
+const int MAX_FRAMES_IN_FLIGHT = 1;
 const int SAMPLERS_BINDINGS_COUNT = 4;
 const int TEXTURES_BINDINGS_COUNT = 4;
 const int SAMPLERS_COUNT = 4;

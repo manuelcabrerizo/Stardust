@@ -12,8 +12,13 @@
 #include <exception>
 #include <string>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 Model::Model(const char* modelFilepath, const char* textureFilePath)
 {
+	/*
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
@@ -52,6 +57,41 @@ Model::Model(const char* modelFilepath, const char* textureFilePath)
 	        vertices.push_back(vertex);
 	        indices.push_back(indices.size());
 	    }
+	}
+	*/
+
+	/*
+		aiProcess_MakeLeftHanded | aiProcess_FlipWindingOrder |
+		aiProcess_Triangulate | aiProcess_GenSmoothNormals |
+		aiProcess_CalcTangentSpace
+	*/
+
+	Assimp::Importer importer;
+	const aiScene *scene = importer.ReadFile(modelFilepath, aiProcess_Triangulate);
+
+	std::vector<ModelVertex> vertices;
+	std::vector<int> indices;
+	for(int k = 0; k < scene->mNumMeshes; ++k)
+	{
+		aiMesh *mesh = scene->mMeshes[k]; 
+
+		for(int i = 0; i < mesh->mNumVertices; i++)
+		{
+		   ModelVertex vertex{};
+		   vertex.Position = Vector3{ mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z};
+		   vertex.Normal = Vector3{ mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z };
+		   vertex.TCoord = Vector2{ mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
+		   vertices.push_back(vertex);
+		}
+
+		for(int i = 0; i < mesh->mNumFaces; i++)
+		{
+		   aiFace *face = mesh->mFaces + i;
+		   for(unsigned int j = 0; j < face->mNumIndices; j++)
+		   {
+		        indices.push_back(face->mIndices[j]);
+		   }
+		}
 	}
 
 	mVertexBuffer = new VertexBuffer(vertices.data(), vertices.size(), sizeof(ModelVertex));
