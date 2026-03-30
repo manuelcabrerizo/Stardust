@@ -123,3 +123,15 @@ void ConstBuffer::AddVariable(const std::string& name, const Variable& variable)
 	mVariables.emplace(name, variable);
 	mUsedSize += variable.Size;
 }
+
+
+void ConstBuffer::SetVariable(const std::string& name, void *data, size_t size)
+{
+	if(mVariables.find(name) != mVariables.end())
+	{
+		const Variable& variable = mVariables[name];
+		assert(size <= variable.Size);
+		void *dst = reinterpret_cast<void *>(mBuffer + variable.Offset);
+		memcpy(dst, data, size);
+	}
+}

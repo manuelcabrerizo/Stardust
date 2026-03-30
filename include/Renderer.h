@@ -57,6 +57,8 @@ public:
 		mPerDraw->SetVariable<T>(variable, value);
 	}
 
+	void SetPerDrawVariable(const std::string& variable, void *data, size_t size);
+
 	virtual void PushGraphicPipeline(GraphicPipeline* graphicPipeline) = 0;
 	virtual void PushPerFrameVariables() = 0;
 	virtual void PushPerDrawVariables() = 0;

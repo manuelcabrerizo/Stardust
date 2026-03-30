@@ -8,8 +8,24 @@
 
 enum class EventType
 {
+	// Engine
 	WindowResizeEvent,
 
+	// Gameplay
+	KeyWPress,
+	KeySPress,
+	KeyDPress,
+	KeyAPress,
+	KeyEPress,
+	KeyQPress,
+	MouseLeftButtonPress,
+	MouseRightButtonPress,
+
+	CreateEntityEvent,
+	DestroyEntityEvent,
+	UpdateEntityEvent,
+
+	// Size
 	Count
 };
 

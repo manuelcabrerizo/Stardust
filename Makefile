@@ -35,12 +35,16 @@ SRCS  =       $(SRC)/StardustEngine.cpp \
               $(SRC)/math/Vector3.cpp \
               $(SRC)/math/Vector4.cpp \
               $(SRC)/math/Matrix4x4.cpp \
+              $(SRC)/math/Quaternion.cpp \
               $(SRC)/EventBus.cpp \
               $(SRC)/ServiceProvider.cpp \
               $(SRC)/spirv_reflect.cpp \
               $(SRC)/Model.cpp \
               $(SRC)/TextRenderer.cpp \
-              $(SRC)/Input.cpp
+              $(SRC)/Input.cpp \
+              $(SRC)/Bone.cpp \
+              $(SRC)/Animation.cpp \
+              $(SRC)/Skeleton.cpp
 
 $(APP) : $(SRCS)
        if not exist lib mkdir lib

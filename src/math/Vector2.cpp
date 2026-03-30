@@ -21,13 +21,13 @@ Vector2::Vector2(float x, float y)
 
 float& Vector2::operator[](int index)
 {
-	assert(index >= 0 & index < NumComponents);
+	assert(index >= 0 && index < NumComponents);
 	return V[index];
 }
 
 float Vector2::operator[](int index) const
 {
-	assert(index >= 0 & index < NumComponents);
+	assert(index >= 0 && index < NumComponents);
 	return V[index];
 }
 

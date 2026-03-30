@@ -139,3 +139,9 @@ void Renderer::ReleaseTexture2D(Bindable* texture2d)
 		texture2d->OnRelease(this, id);
 	}
 }
+
+void Renderer::SetPerDrawVariable(const std::string& variable, void *data, size_t size)
+{
+	assert(mPerDraw != nullptr);
+	mPerDraw->SetVariable(variable, data, size);
+}

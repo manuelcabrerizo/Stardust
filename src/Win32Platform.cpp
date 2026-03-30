@@ -100,6 +100,10 @@ LRESULT Win32Platform::MsgProc(HWND window, UINT message, WPARAM wParam, LPARAM 
         {
             gIsRunning = false;
         } break;
+        case WM_PAINT:
+        {
+            ValidateRect(window, nullptr);
+        } break;
         case WM_SIZE:
         {
             if(wParam == SIZE_MINIMIZED)

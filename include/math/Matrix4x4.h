@@ -22,10 +22,7 @@ struct alignas(16) SD_API Matrix4x4
 	Matrix4x4 operator*(float val) const;
 	Matrix4x4 operator*(const Matrix4x4& m) const;
 	Vector4 operator*(const Vector4& vec) const;
-
 	Vector3 GetTranslation();
-	//Quaternion GetRotation();
-	//Vector3 GetScale();
 
 	static Vector3 TransformPoint(const Matrix4x4& mat, const Vector3& vec);
 	static Vector3 TransformVector(const Matrix4x4& mat, const Vector3& vec);
@@ -44,9 +41,6 @@ struct alignas(16) SD_API Matrix4x4
 	static Matrix4x4 TransformFromEuler(float x, float y, float z);
 	static Matrix4x4 TransformFromEuler(const Vector3& rotation);
 	static Matrix4x4 Transposed(const Matrix4x4& m);
-	//static float Determinant(const Matrix4x4& m);
-	//static Matrix4x4 Adjugate(const Matrix4x4& m);
-	//static Matrix4x4 Inverse(const Matrix4x4& m);
 };
 
 #endif

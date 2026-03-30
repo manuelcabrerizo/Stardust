@@ -7,7 +7,7 @@
 
 typedef int ServiceID;
 
-class IServiceBase
+class SD_API IServiceBase
 {
 public:
 	virtual ~IServiceBase() = default;

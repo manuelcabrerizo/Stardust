@@ -33,13 +33,13 @@ Vector3::Vector3(const Vector4& v)
 
 float& Vector3::operator[](int index)
 {
-	assert(index >= 0 & index < NumComponents);
+	assert(index >= 0 && index < NumComponents);
 	return V[index];
 }
 
 float Vector3::operator[](int index) const
 {
-	assert(index >= 0 & index < NumComponents);
+	assert(index >= 0 && index < NumComponents);
 	return V[index];
 }
 

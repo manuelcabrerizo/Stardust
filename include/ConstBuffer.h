@@ -41,6 +41,8 @@ public:
 	void AddBindStage(ConstBufferBindStage bindStage);
 	void AddVariable(const std::string& name, const Variable& variable);
 
+	void SetVariable(const std::string& name, void *data, size_t size);
+
 	template<typename T>
 	void SetVariable(const std::string& name, const T& src)
 	{

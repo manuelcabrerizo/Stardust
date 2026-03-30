@@ -15,7 +15,7 @@ struct QuadVertex
 
 const int VERTEX_COUNT_PER_SPRITE = 6;
 
-class BatchRenderer
+class SD_API BatchRenderer
 {
 public:
 	static BatchRenderer* Create(Renderer* renderer, int maxSpriteCount);
