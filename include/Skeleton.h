@@ -27,6 +27,7 @@ public:
 	const std::string& GetName() const;
 	int GetChildCount() const;
 	const SkeletonNode& GetChild(int index) const;
+	const SkeletonNode* GetNodeByName(const std::string& name) const;
 private:
 	Matrix4x4 mTransformation;
 	std::string mName;
@@ -38,10 +39,35 @@ class SD_API Skeleton
 public:
 	Skeleton(const char* skeletonFilepath);
 	~Skeleton();
+	
 	void CalculateBoneTransform(
 		const Animation& animation, const SkeletonNode& node,
 		Matrix4x4 parentTransform, Matrix4x4 finalBoneMatrices[], float t) const;
+
+	void CalculateBoneTransform(
+		const SkeletonNode& node, Matrix4x4 parentTransform,
+		const Animation& a, const Animation& b, float t,
+		Matrix4x4 finalBoneMatrices[], float aTime, float bTime) const;
+
+	void CalculateBoneTransform(
+		const SkeletonNode& node, Matrix4x4 parentTransform,
+		const Animation& a, const Animation& b, const Animation& c, const Animation& d,
+		float t0, float t1, float t2, Matrix4x4 finalBoneMatrices[],
+		float aTime, float bTime, float cTime, float dTime) const;
+
+	void CalculateBoneTransform(
+		const SkeletonNode& node, Matrix4x4 parentTransform,
+		Animation* animations[], float timeStamps[], float animationTimes[], float b,
+		Matrix4x4 finalBoneMatrices[]);
+
+	void CalculateBoneTransform(
+		const SkeletonNode& node, Matrix4x4 parentTransform,
+		Animation* animations0[], float timeStamps0[], float animationTimes0[], float b0,
+		Animation* animations1[], float timeStamps1[], float animationTimes1[], float b1,
+		float b2, Matrix4x4 finalBoneMatrices[]);
+
 	const SkeletonNode& GetRoot() const;
+	const SkeletonNode& GetNode(const std::string& name) const;
 	bool ContainsBoneInfo(const std::string& name) const;
 	const BoneInfo& GetBoneInfo(const std::string& name) const;
 private:

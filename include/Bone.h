@@ -31,6 +31,14 @@ public:
 	~Bone();
 	const std::string& GetName() const;
 	Matrix4x4 GetMatrix(float animationTime) const;
+
+	static Matrix4x4 Interpolate(const Bone& a, const Bone& b, float aTime, float bTime, float t);
+	static Matrix4x4 Interpolate(
+		const Bone& a, const Bone& b, const Bone& c, const Bone& d,
+		float aTime, float bTime, float cTime, float dTime,
+		float t0, float t1, float t2);
+
+
 private:
 	template<typename T>
 	int GetIndex(const std::vector<T>& array, float animationTime) const

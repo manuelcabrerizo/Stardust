@@ -12,8 +12,8 @@ LIBS    = -luser32 -ld3d11 -ld3dcompiler -ldxguid -lvulkan-1 -lassimp-vc143-mt
 DEFINES =     -DSD_EXPORT  \
               -DSD_DEBUG=1 \
               -DSD_WIN32=1 \
-              -DSD_D3D11=0 \
-              -DSD_VULKAN=1
+              -DSD_D3D11=1 \
+              -DSD_VULKAN=0
 
 SRCS  =       $(SRC)/StardustEngine.cpp \
               $(SRC)/Platform.cpp \
