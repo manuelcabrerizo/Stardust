@@ -9,6 +9,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "Bone.h"
+
 struct aiNode;
 class Animation;
 
@@ -28,6 +30,9 @@ public:
 	int GetChildCount() const;
 	const SkeletonNode& GetChild(int index) const;
 	const SkeletonNode* GetNodeByName(const std::string& name) const;
+
+	mutable bool HasInterpolatesValue;
+	mutable InterpolationBone InterpolationBone;
 private:
 	Matrix4x4 mTransformation;
 	std::string mName;
@@ -65,6 +70,26 @@ public:
 		Animation* animations0[], float timeStamps0[], float animationTimes0[], float b0,
 		Animation* animations1[], float timeStamps1[], float animationTimes1[], float b1,
 		float b2, Matrix4x4 finalBoneMatrices[]);
+
+	void StartInterpolation();
+	void EndInterpolation(const SkeletonNode& node, Matrix4x4 parentTransform, Matrix4x4 finalBoneMatrices[]);
+	
+	void Interpolate(const SkeletonNode& node,
+		const Animation& a, float aTime, float t);
+
+	void Interpolate(
+		const SkeletonNode& node,
+		const Animation& a, const Animation& b, const Animation& c, const Animation& d,
+		float t0, float t1, float t2,
+		float aTime, float bTime, float cTime, float dTime, float t);
+	
+	void Interpolate(
+		const SkeletonNode& node,
+		Animation* animations0[], float timeStamps0[], float animationTimes0[], float b0,
+		Animation* animations1[], float timeStamps1[], float animationTimes1[], float b1,
+		float b2, float t);
+
+	int GetBoneIndex(const std::string& bone) const;
 
 	const SkeletonNode& GetRoot() const;
 	const SkeletonNode& GetNode(const std::string& name) const;

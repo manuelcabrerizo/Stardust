@@ -22,6 +22,13 @@ struct KeyQuaternion
 	float TimeStamp;
 };
 
+struct InterpolationBone
+{
+	Vector3 Position;
+	Quaternion Rotation;
+	Vector3 Scale;
+};
+
 struct aiNodeAnim;
 
 class SD_API Bone
@@ -30,11 +37,28 @@ public:
 	Bone(aiNodeAnim* channel);
 	~Bone();
 	const std::string& GetName() const;
-	Matrix4x4 GetMatrix(float animationTime) const;
 
-	static Matrix4x4 Interpolate(const Bone& a, const Bone& b, float aTime, float bTime, float t);
+	Matrix4x4 GetMatrix(float animationTime) const;
+	static Matrix4x4 GetMatrix(const InterpolationBone& interpolatedBone);
+
+	static Matrix4x4 Interpolate(
+		const Bone& a, const Bone& b,
+		float aTime, float bTime,
+		float t);
+
 	static Matrix4x4 Interpolate(
 		const Bone& a, const Bone& b, const Bone& c, const Bone& d,
+		float aTime, float bTime, float cTime, float dTime,
+		float t0, float t1, float t2);
+
+	static InterpolationBone InterpolateBone(const Bone& a, float aTime);
+
+	static InterpolationBone InterpolateBone(
+		const Bone& a, const Bone& b,
+		float aTime, float bTime,
+		float t);
+
+	static InterpolationBone InterpolateBone(const Bone& a, const Bone& b, const Bone& c, const Bone& d,
 		float aTime, float bTime, float cTime, float dTime,
 		float t0, float t1, float t2);
 
@@ -52,6 +76,7 @@ private:
 	    }
 	    return array.size() - 2;
 	}
+
 	Vector3 Interpolate(const std::vector<KeyVector3>& array, float animationTime) const;
 	Quaternion Interpolate(const std::vector<KeyQuaternion>& array, float animationTime) const;
 

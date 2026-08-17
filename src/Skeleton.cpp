@@ -22,6 +22,10 @@ SkeletonNode::SkeletonNode(aiNode* node)
 	: mName(node->mName.C_Str())
 {
 	mTransformation = FromAssimp(node->mTransformation);
+	HasInterpolatesValue = false;
+	InterpolationBone.Position = Vector3::ZeroVector;
+	InterpolationBone.Rotation = Quaternion();
+	InterpolationBone.Scale = Vector3::ZeroVector;
 	if(node->mNumChildren <= 0)
 	{
 		return;
@@ -241,6 +245,122 @@ void Skeleton::CalculateBoneTransform(
 		*animations0[indexStart0], *animations0[indexEnd0], *animations1[indexStart1], *animations1[indexEnd1],
 		t0, t1, b2, finalBoneMatrices,
 		animationTimes0[indexStart0], animationTimes0[indexEnd0], animationTimes1[indexStart1], animationTimes1[indexEnd1]);
+}
+
+static InterpolationBone Lerp(const InterpolationBone& a, const InterpolationBone& b, float t)
+{
+	InterpolationBone result;
+	result.Position = Vector3::Lerp(a.Position, b.Position, t);
+	result.Rotation = Quaternion::Slerp(a.Rotation, b.Rotation, t);
+	result.Scale = Vector3::Lerp(a.Scale, b.Scale, t);
+	return result;
+}
+
+void Skeleton::StartInterpolation()
+{
+}
+
+void Skeleton::EndInterpolation(const SkeletonNode& node, Matrix4x4 parentTransform, Matrix4x4 finalBoneMatrices[])
+{
+	Matrix4x4 nodeTransform = node.GetTransformation();
+	if(node.HasInterpolatesValue)
+	{
+		nodeTransform =  Bone::GetMatrix(node.InterpolationBone);
+	}
+	Matrix4x4 globalTransform = nodeTransform * parentTransform;
+	if(mBoneInfos.find(node.GetName()) != mBoneInfos.end())
+	{
+		const BoneInfo& boneInfo = mBoneInfos.at(node.GetName());
+		finalBoneMatrices[boneInfo.ID] = boneInfo.Offset * globalTransform;
+	}
+	for(int i = 0; i < node.GetChildCount(); i++)
+	{
+		EndInterpolation(node.GetChild(i), globalTransform, finalBoneMatrices);
+	}
+}
+
+int Skeleton::GetBoneIndex(const std::string& bone) const
+{
+	const BoneInfo& boneInfo = mBoneInfos.at(bone);
+	return boneInfo.ID;
+}
+
+
+void Skeleton::Interpolate(const SkeletonNode& node,
+	const Animation& a, float aTime, float t)
+{
+	node.HasInterpolatesValue = false;
+	if(a.ContainsBone(node.GetName()))
+	{
+		const Bone& aBone = a.GetBone(node.GetName());
+		InterpolationBone interpolationBone = Bone::InterpolateBone(aBone, aTime);
+		node.InterpolationBone = Lerp(node.InterpolationBone, interpolationBone, t);
+		node.HasInterpolatesValue = true;
+	}
+	for(int i = 0; i < node.GetChildCount(); i++)
+	{
+		Interpolate(node.GetChild(i), a, aTime, t);
+	}
+}
+
+void Skeleton::Interpolate(const SkeletonNode& node,
+	const Animation& a, const Animation& b, const Animation& c, const Animation& d,
+	float t0, float t1, float t2,
+	float aTime, float bTime, float cTime, float dTime, float t)
+{
+	node.HasInterpolatesValue = false;
+	if(a.ContainsBone(node.GetName()) && b.ContainsBone(node.GetName()) &&
+	   c.ContainsBone(node.GetName()) && d.ContainsBone(node.GetName()))
+	{
+		const Bone& aBone = a.GetBone(node.GetName());
+		const Bone& bBone = b.GetBone(node.GetName());
+		const Bone& cBone = c.GetBone(node.GetName());
+		const Bone& dBone = d.GetBone(node.GetName());
+		InterpolationBone interpolationBone = Bone::InterpolateBone(
+			aBone, bBone, cBone, dBone,
+			aTime, bTime, cTime, dTime, t0, t1, t2);
+		node.InterpolationBone = Lerp(node.InterpolationBone, interpolationBone, t);
+		node.HasInterpolatesValue = true;
+	}
+	for(int i = 0; i < node.GetChildCount(); i++)
+	{
+		Interpolate(node.GetChild(i), 
+			a, b, c, d, t0, t1, t2, aTime, bTime, cTime, dTime, t);
+	}
+}
+
+void Skeleton::Interpolate(const SkeletonNode& node,
+	Animation* animations0[], float timeStamps0[], float animationTimes0[], float b0,
+	Animation* animations1[], float timeStamps1[], float animationTimes1[], float b1,
+	float b2, float t)
+{
+	float interval0 = std::fabs(timeStamps0[1] - timeStamps0[0]);
+	int indexStart0 = std::floor((b0 - timeStamps0[0]) / interval0);
+	int indexEnd0 = std::ceil((b0 - timeStamps0[0]) / interval0);
+	float t0 = 0.0f;
+	float numerator0 = (b0 - timeStamps0[indexStart0]);
+	float denomnator0 = (timeStamps0[indexEnd0] - timeStamps0[indexStart0]);
+	if(denomnator0 > FLT_EPSILON)
+	{
+		t0 = numerator0 / denomnator0;
+	}
+
+	float interval1 = std::fabs(timeStamps1[1] - timeStamps1[0]);
+	int indexStart1 = std::floor((b1 - timeStamps1[0]) / interval1);
+	int indexEnd1 = std::ceil((b1 - timeStamps1[0]) / interval1);
+	float t1 = 0.0f;
+	float numerator1 = (b1 - timeStamps1[indexStart1]);
+	float denomnator1 = (timeStamps1[indexEnd1] - timeStamps1[indexStart1]);
+	if(denomnator1 > FLT_EPSILON)
+	{
+		t1 = numerator1 / denomnator1;
+	}
+
+	Interpolate(node,
+		*animations0[indexStart0], *animations0[indexEnd0], *animations1[indexStart1], *animations1[indexEnd1],
+		t0, t1, b2,
+		animationTimes0[indexStart0], animationTimes0[indexEnd0], animationTimes1[indexStart1], animationTimes1[indexEnd1],
+		t);
 }
 
 const SkeletonNode& Skeleton::GetRoot() const

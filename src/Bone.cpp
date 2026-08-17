@@ -73,6 +73,14 @@ Matrix4x4 Bone::GetMatrix(float animationTime) const
 	return sMat * rMat * tMat;
 }
 
+Matrix4x4 Bone::GetMatrix(const InterpolationBone& interpolatedBone)
+{
+	Matrix4x4 tMat = Matrix4x4::Translate(interpolatedBone.Position);
+	Matrix4x4 rMat = interpolatedBone.Rotation.ToMatrix();
+	Matrix4x4 sMat = Matrix4x4::Scale(interpolatedBone.Scale);
+	return sMat * rMat * tMat;
+}
+
 Matrix4x4 Bone::Interpolate(const Bone& a, const Bone& b, float aTime, float bTime, float t)
 {
 	Vector3 aPos = a.Interpolate(a.mPositions, aTime);
@@ -125,6 +133,66 @@ Matrix4x4 Bone::Interpolate(
 	return sMat * rMat * tMat;
 }
 
+InterpolationBone Bone::InterpolateBone(const Bone& a, float aTime)
+{
+	InterpolationBone result;
+	result.Position = a.Interpolate(a.mPositions, aTime);
+	result.Rotation = a.Interpolate(a.mRotations, aTime);
+	result.Scale = a.Interpolate(a.mScales, aTime);	
+	return result;
+}
+
+InterpolationBone Bone::InterpolateBone(
+	const Bone& a, const Bone& b,
+	float aTime, float bTime,
+	float t)
+{
+	Vector3 aPos = a.Interpolate(a.mPositions, aTime);
+	Quaternion aRot = a.Interpolate(a.mRotations, aTime);
+	Vector3 aSca = a.Interpolate(a.mScales, aTime);
+	Vector3 bPos = b.Interpolate(b.mPositions, bTime);
+	Quaternion bRot = b.Interpolate(b.mRotations, bTime);
+	Vector3 bSca = b.Interpolate(b.mScales, bTime);
+
+	InterpolationBone result;
+	result.Position = Vector3::Lerp(aPos, bPos, t);
+	result.Rotation = Quaternion::Slerp(aRot, bRot, t);
+	result.Scale = Vector3::Lerp(aSca, bSca, t);	
+	return result;
+}
+
+InterpolationBone Bone::InterpolateBone(const Bone& a, const Bone& b, const Bone& c, const Bone& d,
+	float aTime, float bTime, float cTime, float dTime,
+	float t0, float t1, float t2)
+{
+	Vector3 aPos = a.Interpolate(a.mPositions, aTime);
+	Quaternion aRot = a.Interpolate(a.mRotations, aTime);
+	Vector3 aSca = a.Interpolate(a.mScales, aTime);
+	Vector3 bPos = b.Interpolate(b.mPositions, bTime);
+	Quaternion bRot = b.Interpolate(b.mRotations, bTime);
+	Vector3 bSca = b.Interpolate(b.mScales, bTime);
+
+	Vector3 abPos = Vector3::Lerp(aPos, bPos, t0);
+	Quaternion abRot = Quaternion::Slerp(aRot, bRot, t0);
+	Vector3 abSca = Vector3::Lerp(aSca, bSca, t0);
+
+	Vector3 cPos = c.Interpolate(c.mPositions, cTime);
+	Quaternion cRot = c.Interpolate(c.mRotations, cTime);
+	Vector3 cSca = c.Interpolate(c.mScales, cTime);
+	Vector3 dPos = d.Interpolate(d.mPositions, dTime);
+	Quaternion dRot = d.Interpolate(d.mRotations, dTime);
+	Vector3 dSca = d.Interpolate(d.mScales, dTime);
+
+	Vector3 cdPos = Vector3::Lerp(cPos, dPos, t1);
+	Quaternion cdRot = Quaternion::Slerp(cRot, dRot, t1);
+	Vector3 cdSca = Vector3::Lerp(cSca, dSca, t1);
+
+	InterpolationBone result;
+	result.Position = Vector3::Lerp(abPos, cdPos, t2);
+	result.Rotation = Quaternion::Slerp(abRot, cdRot, t2);
+	result.Scale = Vector3::Lerp(abSca, cdSca, t2);
+	return result;
+}
 
 Vector3 Bone::Interpolate(const std::vector<KeyVector3>& array, float animationTime) const
 {

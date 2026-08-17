@@ -1,9 +1,10 @@
 #ifndef TEXTURE_2D_H
 #define TEXTURE_2D_H
 
+#include "Config.h"
 #include "Bindable.h"
 
-class Texture2D : public Bindable
+class SD_API Texture2D : public Bindable
 {
 public:
 	Texture2D(const char* filepath, bool isSRGB);
